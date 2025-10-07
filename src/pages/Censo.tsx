@@ -2,10 +2,12 @@ import { useState, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
 import { CatCard } from "@/components/CatCard";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase, CatStatus } from "@/lib/supabase";
-import { Loader2, Instagram } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Loader2, Search, Plus } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Cat {
   id: string;
@@ -20,14 +22,31 @@ interface Cat {
   fotos: string[] | null;
 }
 
-const Index = () => {
+const statusOptions: { value: CatStatus; label: string }[] = [
+  { value: 'no_campus', label: 'No Campus' },
+  { value: 'em_tratamento', label: 'Em Tratamento' },
+  { value: 'adotado', label: 'Adotado' },
+  { value: 'falecido', label: 'Falecido' },
+  { value: 'desconhecido', label: 'Desconhecido' },
+];
+
+const Censo = () => {
   const [cats, setCats] = useState<Cat[]>([]);
+  const [filteredCats, setFilteredCats] = useState<Cat[]>([]);
+  const [selectedStatus, setSelectedStatus] = useState<CatStatus | 'all'>('all');
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedCat, setSelectedCat] = useState<Cat | null>(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const { isProtetor } = useAuth();
 
   useEffect(() => {
-    fetchCats();
-  }, []);
+    if (!isProtetor) {
+      navigate("/auth");
+    } else {
+      fetchCats();
+    }
+  }, [isProtetor, navigate]);
 
   const fetchCats = async () => {
     setLoading(true);
@@ -38,27 +57,72 @@ const Index = () => {
 
     if (!error && data) {
       setCats(data);
+      setFilteredCats(data);
     }
     setLoading(false);
   };
 
-  const displayedCats = cats.slice(0, 8);
-  const totalCats = cats.length;
+  useEffect(() => {
+    let filtered = cats;
+
+    if (selectedStatus !== 'all') {
+      filtered = filtered.filter(cat => cat.status === selectedStatus);
+    }
+
+    if (searchTerm) {
+      filtered = filtered.filter(cat =>
+        cat.nome.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    setFilteredCats(filtered);
+  }, [selectedStatus, searchTerm, cats]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen gradient-purple-dark">
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-4 py-8">
-        {/* Hero Section */}
-        <section className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-secondary mb-4">
-            Conheça nossas patinhas!
-          </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Ajude a cuidar dos gatos do campus. Conheça cada um deles e saiba como contribuir.
-          </p>
-        </section>
+        {/* Header */}
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+          <div className="flex gap-2 flex-wrap justify-center">
+            <Button
+              variant={selectedStatus === 'all' ? 'default' : 'accent'}
+              onClick={() => setSelectedStatus('all')}
+            >
+              Todos
+            </Button>
+            {statusOptions.map(option => (
+              <Button
+                key={option.value}
+                variant={selectedStatus === option.value ? 'default' : 'accent'}
+                onClick={() => setSelectedStatus(option.value)}
+              >
+                {option.label}
+              </Button>
+            ))}
+          </div>
+
+          <div className="flex gap-2 w-full md:w-auto">
+            <div className="relative flex-1 md:w-64">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Pesquisar"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 rounded-full"
+              />
+            </div>
+            <Button onClick={() => navigate("/cadastro-gato")} className="gap-2">
+              <Plus className="w-4 h-4" />
+              Cadastrar
+            </Button>
+          </div>
+        </div>
+
+        <p className="text-center text-primary mb-6 text-lg font-bold">
+          Mostrando {filteredCats.length} de {cats.length} gatos
+        </p>
 
         {/* Cats Grid */}
         {loading ? (
@@ -66,60 +130,19 @@ const Index = () => {
             <Loader2 className="w-12 h-12 animate-spin text-primary" />
           </div>
         ) : (
-          <>
-            <div className="bg-primary rounded-3xl p-6 md:p-8 border-4 border-accent shadow-card">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                {displayedCats.map((cat) => (
-                  <CatCard
-                    key={cat.id}
-                    id={cat.id}
-                    nome={cat.nome}
-                    foto={cat.fotos?.[0]}
-                    castrado={cat.castrado}
-                    vacinado={cat.vacinado}
-                    onClick={() => setSelectedCat(cat)}
-                  />
-                ))}
-              </div>
-
-              {totalCats > 8 && (
-                <div className="flex justify-center mt-6">
-                  <Link to="/censo">
-                    <Button variant="secondary" size="lg">
-                      Ver todos!
-                    </Button>
-                  </Link>
-                </div>
-              )}
-            </div>
-
-            {/* Stats Section */}
-            <section className="mt-12 bg-secondary rounded-3xl p-8 text-center border-4 border-accent">
-              <h2 className="text-3xl font-bold text-secondary-foreground mb-4">
-                Patinhas em números
-              </h2>
-              <p className="text-5xl font-bold text-primary">{totalCats}</p>
-              <p className="text-xl text-secondary-foreground/80 mt-2">
-                gatos cadastrados
-              </p>
-            </section>
-
-            {/* Footer */}
-            <footer className="mt-12 bg-accent rounded-3xl p-8 border-4 border-accent text-center">
-              <h3 className="text-2xl font-bold text-accent-foreground mb-4">
-                Visite nosso insta!
-              </h3>
-              <a
-                href="https://instagram.com/patinhasdoinstituto"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-accent-foreground hover:underline"
-              >
-                <Instagram className="w-6 h-6" />
-                @patinhasdoinstituto
-              </a>
-            </footer>
-          </>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            {filteredCats.map((cat) => (
+              <CatCard
+                key={cat.id}
+                id={cat.id}
+                nome={cat.nome}
+                foto={cat.fotos?.[0]}
+                castrado={cat.castrado}
+                vacinado={cat.vacinado}
+                onClick={() => setSelectedCat(cat)}
+              />
+            ))}
+          </div>
         )}
       </main>
 
@@ -173,10 +196,18 @@ const Index = () => {
 
                 {selectedCat.local_encontrado && (
                   <div>
-                    <p className="font-bold text-secondary mb-1">Local onde costuma ser encontrado:</p>
+                    <p className="font-bold text-secondary mb-1">Local:</p>
                     <p className="text-muted-foreground">{selectedCat.local_encontrado}</p>
                   </div>
                 )}
+
+                <Button
+                  variant="accent"
+                  className="w-full"
+                  onClick={() => navigate(`/editar-gato/${selectedCat.id}`)}
+                >
+                  Editar
+                </Button>
               </div>
             </>
           )}
@@ -186,4 +217,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default Censo;
