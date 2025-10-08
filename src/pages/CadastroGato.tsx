@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase, uploadCatPhoto, CatStatus, CatSex } from "@/lib/supabase";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
-import { Loader2, Upload, X } from "lucide-react";
+import { Loader2, Upload, X, Cat, Award, Star } from "lucide-react";
 
 const CadastroGato = () => {
   const { id } = useParams();
@@ -133,10 +133,22 @@ const CadastroGato = () => {
       <Navbar />
 
       <main className="max-w-4xl mx-auto px-4 py-8">
-        <div className="bg-primary rounded-3xl p-8 border-4 border-accent shadow-card">
-          <h1 className="text-3xl font-bold text-secondary text-center mb-6">
-            {isEditing ? "Editar Gato" : "Cadastrar Novo Gato"}
-          </h1>
+        <div className="bg-primary rounded-3xl p-8 border-4 border-accent shadow-card animate-scale-in">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center gap-3 bg-accent/10 rounded-full px-6 py-3 mb-4 animate-bounce-subtle">
+              <Cat className="w-6 h-6 text-accent" />
+              <span className="font-bold text-accent">
+                {isEditing ? "Modo Edição" : "Novo Cadastro"}
+              </span>
+              <Star className="w-6 h-6 text-accent" />
+            </div>
+            <h1 className="text-3xl md:text-4xl font-bold text-secondary mb-2">
+              {isEditing ? "✏️ Editar Gatinho" : "🎉 Cadastrar Novo Gatinho"}
+            </h1>
+            <p className="text-secondary/70">
+              Preencha as informações com carinho para manter nosso censo atualizado!
+            </p>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid md:grid-cols-2 gap-4">
@@ -278,21 +290,34 @@ const CadastroGato = () => {
               </div>
             </div>
 
-            <Button
-              type="submit"
-              className="w-full"
-              size="lg"
-              disabled={loading}
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  Salvando...
-                </>
-              ) : (
-                isEditing ? "Atualizar" : "Cadastrar novo"
-              )}
-            </Button>
+            <div className="flex gap-4">
+              <Button
+                type="submit"
+                className="flex-1 gap-2"
+                size="lg"
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Salvando...
+                  </>
+                ) : (
+                  <>
+                    <Award className="w-5 h-5" />
+                    {isEditing ? "💾 Atualizar Informações" : "✨ Cadastrar Gatinho"}
+                  </>
+                )}
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                size="lg"
+                onClick={() => navigate("/censo")}
+              >
+                Cancelar
+              </Button>
+            </div>
           </form>
         </div>
       </main>

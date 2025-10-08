@@ -13,7 +13,7 @@ export const CatCard = ({ nome, foto, castrado, vacinado, onClick }: CatCardProp
   return (
     <div
       onClick={onClick}
-      className="bg-primary rounded-3xl border-4 border-accent p-4 cursor-pointer hover:scale-105 transition-transform shadow-card"
+      className="bg-primary rounded-3xl border-4 border-accent p-4 cursor-pointer hover:scale-110 hover:-rotate-1 transition-all duration-300 shadow-card hover:shadow-vibrant group"
     >
       <div className="aspect-square rounded-2xl overflow-hidden bg-card mb-3">
         {foto ? (
@@ -30,15 +30,19 @@ export const CatCard = ({ nome, foto, castrado, vacinado, onClick }: CatCardProp
       </div>
       
       <div className="bg-card rounded-xl p-2">
-        <h3 className="text-center font-bold text-secondary mb-2 truncate">{nome}</h3>
+        <h3 className="text-center font-bold text-secondary mb-2 truncate group-hover:text-accent transition-colors">{nome}</h3>
         
         <div className="flex justify-center gap-3">
-          <Scissors
-            className={`w-5 h-5 ${castrado ? 'text-secondary' : 'text-accent'}`}
-          />
-          <Syringe
-            className={`w-5 h-5 ${vacinado ? 'text-secondary' : 'text-accent'}`}
-          />
+          <div className={`p-2 rounded-full transition-all ${castrado ? 'bg-secondary/10' : 'bg-accent/10'}`}>
+            <Scissors
+              className={`w-4 h-4 ${castrado ? 'text-secondary' : 'text-accent'}`}
+            />
+          </div>
+          <div className={`p-2 rounded-full transition-all ${vacinado ? 'bg-secondary/10' : 'bg-accent/10'}`}>
+            <Syringe
+              className={`w-4 h-4 ${vacinado ? 'text-secondary' : 'text-accent'}`}
+            />
+          </div>
         </div>
       </div>
     </div>

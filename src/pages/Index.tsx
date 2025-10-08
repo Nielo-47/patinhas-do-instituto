@@ -4,8 +4,9 @@ import { CatCard } from "@/components/CatCard";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase, CatStatus } from "@/lib/supabase";
-import { Loader2, Instagram } from "lucide-react";
+import { Loader2, Instagram, Heart, Sparkles, Award } from "lucide-react";
 import { Link } from "react-router-dom";
+import heroCats from "@/assets/hero-cats.jpg";
 
 interface Cat {
   id: string;
@@ -51,13 +52,46 @@ const Index = () => {
 
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Hero Section */}
-        <section className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-secondary mb-4">
-            Conheça nossas patinhas!
-          </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Ajude a cuidar dos gatos do campus. Conheça cada um deles e saiba como contribuir.
-          </p>
+        <section className="relative overflow-hidden rounded-3xl mb-12 bg-gradient-yellow-red p-8 md:p-16">
+          <div className="grid md:grid-cols-2 gap-8 items-center">
+            <div className="text-center md:text-left z-10 animate-fade-in">
+              <div className="inline-flex items-center gap-2 bg-secondary/10 rounded-full px-4 py-2 mb-4">
+                <Sparkles className="w-5 h-5 text-secondary" />
+                <span className="text-sm font-semibold text-secondary">Bem-vindo ao Instituto Patinhas!</span>
+              </div>
+              <h1 className="text-4xl md:text-6xl font-bold text-secondary mb-4 leading-tight">
+                Conheça nossas<br />
+                <span className="text-accent">patinhas</span> especiais!
+              </h1>
+              <p className="text-lg text-secondary/80 mb-6 max-w-lg">
+                Ajude a cuidar dos gatos do campus. Conheça cada um deles e saiba como contribuir para o bem-estar de todos! 🐾
+              </p>
+              <div className="flex flex-wrap gap-4 justify-center md:justify-start">
+                <Link to="/censo">
+                  <Button size="lg" className="gap-2">
+                    <Heart className="w-5 h-5" />
+                    Ver todos os gatinhos
+                  </Button>
+                </Link>
+                <a href="https://instagram.com/patinhasdoinstituto" target="_blank" rel="noopener noreferrer">
+                  <Button variant="secondary" size="lg" className="gap-2">
+                    <Instagram className="w-5 h-5" />
+                    Siga no Instagram
+                  </Button>
+                </a>
+              </div>
+            </div>
+            <div className="relative animate-scale-in">
+              <img 
+                src={heroCats} 
+                alt="Gatinhos do campus" 
+                className="rounded-2xl shadow-vibrant w-full h-auto animate-float"
+              />
+              <div className="absolute -top-4 -right-4 bg-accent text-accent-foreground rounded-full p-4 shadow-card animate-bounce-subtle">
+                <Award className="w-8 h-8" />
+              </div>
+            </div>
+          </div>
         </section>
 
         {/* Cats Grid */}
@@ -68,17 +102,25 @@ const Index = () => {
         ) : (
           <>
             <div className="bg-primary rounded-3xl p-6 md:p-8 border-4 border-accent shadow-card">
+              <h2 className="text-2xl md:text-3xl font-bold text-secondary mb-6 text-center">
+                🐱 Nossos Gatinhos
+              </h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                {displayedCats.map((cat) => (
-                  <CatCard
-                    key={cat.id}
-                    id={cat.id}
-                    nome={cat.nome}
-                    foto={cat.fotos?.[0]}
-                    castrado={cat.castrado}
-                    vacinado={cat.vacinado}
-                    onClick={() => setSelectedCat(cat)}
-                  />
+                {displayedCats.map((cat, index) => (
+                  <div 
+                    key={cat.id} 
+                    className="animate-fade-in"
+                    style={{ animationDelay: `${index * 0.1}s` }}
+                  >
+                    <CatCard
+                      id={cat.id}
+                      nome={cat.nome}
+                      foto={cat.fotos?.[0]}
+                      castrado={cat.castrado}
+                      vacinado={cat.vacinado}
+                      onClick={() => setSelectedCat(cat)}
+                    />
+                  </div>
                 ))}
               </div>
 
