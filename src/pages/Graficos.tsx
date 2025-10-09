@@ -30,18 +30,15 @@ const Graficos = () => {
   const { isProtetor } = useAuth();
 
   useEffect(() => {
-    if (!isProtetor) {
-      navigate("/auth");
-    } else {
-      fetchCats();
-    }
-  }, [isProtetor, navigate]);
+    fetchCats();
+  }, []);
 
   const fetchCats = async () => {
     setLoading(true);
     const { data, error } = await supabase
       .from('gatos')
       .select('sexo, status, castrado, vacinado, created_at')
+      .neq('status', 'falecido')
       .order('created_at', { ascending: true });
 
     if (!error && data) {
@@ -57,12 +54,11 @@ const Graficos = () => {
     { name: 'Desconhecido', value: cats.filter(c => c.sexo === 'desconhecido').length, color: COLORS.secondary },
   ].filter(d => d.value > 0);
 
-  // Status data
+  // Status data (excluding deceased)
   const statusData = [
     { name: 'No campus', value: cats.filter(c => c.status === 'no_campus').length, color: COLORS.success },
     { name: 'Em tratamento', value: cats.filter(c => c.status === 'em_tratamento').length, color: COLORS.primary },
     { name: 'Adotado', value: cats.filter(c => c.status === 'adotado').length, color: COLORS.accent },
-    { name: 'Falecido', value: cats.filter(c => c.status === 'falecido').length, color: COLORS.info },
     { name: 'Desconhecido', value: cats.filter(c => c.status === 'desconhecido').length, color: COLORS.secondary },
   ].filter(d => d.value > 0);
 

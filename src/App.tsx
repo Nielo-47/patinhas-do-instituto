@@ -10,6 +10,7 @@ import Censo from "./pages/Censo";
 import CadastroGato from "./pages/CadastroGato";
 import Graficos from "./pages/Graficos";
 import Protetores from "./pages/Protetores";
+import Memorial from "./pages/Memorial";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const App = () => (
             <Route path="/editar-gato/:id" element={<CadastroGato />} />
             <Route path="/graficos" element={<Graficos />} />
             <Route path="/protetores" element={<Protetores />} />
+            <Route path="/memorial" element={<Memorial />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

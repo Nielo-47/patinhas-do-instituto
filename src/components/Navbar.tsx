@@ -29,38 +29,47 @@ export const Navbar = () => {
           <Logo />
         </Link>
 
-        {isProtetor ? (
-          <div className="flex items-center gap-4">
-            <div className="hidden md:flex items-center gap-2 bg-accent rounded-full px-4 py-2">
-              <Link to="/censo">
-                <Button
-                  variant={isActive("/censo") ? "secondary" : "ghost"}
-                  size="sm"
-                  className={isActive("/censo") ? "" : "text-accent-foreground hover:bg-accent-foreground/10"}
-                >
-                  Censo
-                </Button>
-              </Link>
-              <Link to="/graficos">
-                <Button
-                  variant={isActive("/graficos") ? "secondary" : "ghost"}
-                  size="sm"
-                  className={isActive("/graficos") ? "" : "text-accent-foreground hover:bg-accent-foreground/10"}
-                >
-                  Gráficos
-                </Button>
-              </Link>
-              <Link to="/protetores">
-                <Button
-                  variant={isActive("/protetores") ? "secondary" : "ghost"}
-                  size="sm"
-                  className={isActive("/protetores") ? "" : "text-accent-foreground hover:bg-accent-foreground/10"}
-                >
-                  Protetores
-                </Button>
-              </Link>
-            </div>
-            
+        <div className="flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-2 bg-accent rounded-full px-4 py-2">
+            <Link to="/censo">
+              <Button
+                variant={isActive("/censo") ? "secondary" : "ghost"}
+                size="sm"
+                className={isActive("/censo") ? "" : "text-accent-foreground hover:bg-accent-foreground/10"}
+              >
+                Censo
+              </Button>
+            </Link>
+            <Link to="/graficos">
+              <Button
+                variant={isActive("/graficos") ? "secondary" : "ghost"}
+                size="sm"
+                className={isActive("/graficos") ? "" : "text-accent-foreground hover:bg-accent-foreground/10"}
+              >
+                Gráficos
+              </Button>
+            </Link>
+            <Link to="/protetores">
+              <Button
+                variant={isActive("/protetores") ? "secondary" : "ghost"}
+                size="sm"
+                className={isActive("/protetores") ? "" : "text-accent-foreground hover:bg-accent-foreground/10"}
+              >
+                Protetores
+              </Button>
+            </Link>
+            <Link to="/memorial">
+              <Button
+                variant={isActive("/memorial") ? "secondary" : "ghost"}
+                size="sm"
+                className={isActive("/memorial") ? "" : "text-accent-foreground hover:bg-accent-foreground/10"}
+              >
+                Memorial
+              </Button>
+            </Link>
+          </div>
+          
+          {isProtetor ? (
             <Button
               variant="outline"
               size="icon"
@@ -69,15 +78,15 @@ export const Navbar = () => {
             >
               <LogOut className="w-5 h-5 text-secondary-foreground" />
             </Button>
-          </div>
-        ) : (
-          <Link to="/auth">
-            <Button variant="accent" size="sm" className="gap-2">
-              <UserCircle className="w-4 h-4" />
-              Entrar
-            </Button>
-          </Link>
-        )}
+          ) : (
+            <Link to="/auth">
+              <Button variant="accent" size="sm" className="gap-2">
+                <UserCircle className="w-4 h-4" />
+                Entrar
+              </Button>
+            </Link>
+          )}
+        </div>
       </div>
     </nav>
   );

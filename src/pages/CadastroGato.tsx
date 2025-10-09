@@ -30,15 +30,10 @@ const CadastroGato = () => {
   const [fotos, setFotos] = useState<string[]>([]);
 
   useEffect(() => {
-    if (!isProtetor) {
-      navigate("/auth");
-      return;
-    }
-
     if (isEditing) {
       fetchCat();
     }
-  }, [isProtetor, isEditing, id]);
+  }, [isEditing, id]);
 
   const fetchCat = async () => {
     if (!id) return;
@@ -160,12 +155,13 @@ const CadastroGato = () => {
                   onChange={(e) => setNome(e.target.value)}
                   required
                   className="rounded-xl"
+                  disabled={!isProtetor}
                 />
               </div>
 
               <div>
                 <Label htmlFor="status">Status</Label>
-                <Select value={status} onValueChange={(value) => setStatus(value as CatStatus)}>
+                <Select value={status} onValueChange={(value) => setStatus(value as CatStatus)} disabled={!isProtetor}>
                   <SelectTrigger className="rounded-xl">
                     <SelectValue />
                   </SelectTrigger>
@@ -181,7 +177,7 @@ const CadastroGato = () => {
 
               <div>
                 <Label htmlFor="sexo">Sexo</Label>
-                <Select value={sexo} onValueChange={(value) => setSexo(value as CatSex)}>
+                <Select value={sexo} onValueChange={(value) => setSexo(value as CatSex)} disabled={!isProtetor}>
                   <SelectTrigger className="rounded-xl">
                     <SelectValue />
                   </SelectTrigger>

@@ -26,7 +26,6 @@ const statusOptions: { value: CatStatus; label: string }[] = [
   { value: 'no_campus', label: 'No Campus' },
   { value: 'em_tratamento', label: 'Em Tratamento' },
   { value: 'adotado', label: 'Adotado' },
-  { value: 'falecido', label: 'Falecido' },
   { value: 'desconhecido', label: 'Desconhecido' },
 ];
 
@@ -41,18 +40,15 @@ const Censo = () => {
   const { isProtetor } = useAuth();
 
   useEffect(() => {
-    if (!isProtetor) {
-      navigate("/auth");
-    } else {
-      fetchCats();
-    }
-  }, [isProtetor, navigate]);
+    fetchCats();
+  }, []);
 
   const fetchCats = async () => {
     setLoading(true);
     const { data, error } = await supabase
       .from('gatos')
       .select('*')
+      .neq('status', 'falecido')
       .order('created_at', { ascending: false });
 
     if (!error && data) {
@@ -113,7 +109,11 @@ const Censo = () => {
                 className="pl-10 rounded-full"
               />
             </div>
-            <Button onClick={() => navigate("/cadastro-gato")} className="gap-2">
+            <Button 
+              onClick={() => navigate("/cadastro-gato")} 
+              className="gap-2"
+              disabled={!isProtetor}
+            >
               <Plus className="w-4 h-4" />
               Cadastrar
             </Button>
@@ -205,6 +205,7 @@ const Censo = () => {
                   variant="accent"
                   className="w-full"
                   onClick={() => navigate(`/editar-gato/${selectedCat.id}`)}
+                  disabled={!isProtetor}
                 >
                   Editar
                 </Button>
