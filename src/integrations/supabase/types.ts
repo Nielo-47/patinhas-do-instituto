@@ -70,6 +70,44 @@ export type Database = {
           },
         ]
       }
+      protetor_atividade_historico: {
+        Row: {
+          created_at: string
+          data_referencia: string
+          gatos_cadastrados_mes: number
+          gatos_editados_mes: number
+          id: number
+          novos_protetores_cadastrados_mes: number
+          protetor_id: string
+        }
+        Insert: {
+          created_at?: string
+          data_referencia: string
+          gatos_cadastrados_mes?: number
+          gatos_editados_mes?: number
+          id?: number
+          novos_protetores_cadastrados_mes?: number
+          protetor_id: string
+        }
+        Update: {
+          created_at?: string
+          data_referencia?: string
+          gatos_cadastrados_mes?: number
+          gatos_editados_mes?: number
+          id?: number
+          novos_protetores_cadastrados_mes?: number
+          protetor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "protetor_atividade_historico_protetor_id_fkey"
+            columns: ["protetor_id"]
+            isOneToOne: false
+            referencedRelation: "protetores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       protetores: {
         Row: {
           campus: string

@@ -80,7 +80,10 @@ const CadastroGato = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user || !isProtetor) {
+      toast.error("Você precisa estar logado para cadastrar/editar gatos");
+      return;
+    }
 
     setLoading(true);
 
@@ -155,7 +158,7 @@ const CadastroGato = () => {
                   onChange={(e) => setNome(e.target.value)}
                   required
                   className="rounded-xl"
-                  disabled={!isProtetor}
+                  readOnly={!isProtetor}
                 />
               </div>
 
@@ -191,7 +194,7 @@ const CadastroGato = () => {
 
               <div>
                 <Label htmlFor="castrado">Castrado</Label>
-                <Select value={castrado} onValueChange={setCastrado}>
+                <Select value={castrado} onValueChange={setCastrado} disabled={!isProtetor}>
                   <SelectTrigger className="rounded-xl">
                     <SelectValue />
                   </SelectTrigger>
@@ -204,7 +207,7 @@ const CadastroGato = () => {
 
               <div>
                 <Label htmlFor="vacinado">Vacinado</Label>
-                <Select value={vacinado} onValueChange={setVacinado}>
+                <Select value={vacinado} onValueChange={setVacinado} disabled={!isProtetor}>
                   <SelectTrigger className="rounded-xl">
                     <SelectValue />
                   </SelectTrigger>
@@ -223,6 +226,7 @@ const CadastroGato = () => {
                   value={dataVacinacao}
                   onChange={(e) => setDataVacinacao(e.target.value)}
                   className="rounded-xl"
+                  readOnly={!isProtetor}
                 />
               </div>
 
@@ -233,6 +237,7 @@ const CadastroGato = () => {
                   value={localEncontrado}
                   onChange={(e) => setLocalEncontrado(e.target.value)}
                   className="rounded-xl"
+                  readOnly={!isProtetor}
                 />
               </div>
 
@@ -244,6 +249,7 @@ const CadastroGato = () => {
                   onChange={(e) => setCaracteristicas(e.target.value)}
                   className="rounded-xl"
                   rows={3}
+                  readOnly={!isProtetor}
                 />
               </div>
             </div>
@@ -259,59 +265,66 @@ const CadastroGato = () => {
                       alt={`Foto ${index + 1}`}
                       className="w-32 h-32 object-cover rounded-xl"
                     />
-                    <button
-                      type="button"
-                      onClick={() => removePhoto(index)}
-                      className="absolute -top-2 -right-2 bg-accent text-accent-foreground rounded-full p-1"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
+                    {isProtetor && (
+                      <button
+                        type="button"
+                        onClick={() => removePhoto(index)}
+                        className="absolute -top-2 -right-2 bg-accent text-accent-foreground rounded-full p-1"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
                 ))}
 
-                <label className="w-32 h-32 border-2 border-dashed border-accent rounded-xl flex items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handlePhotoUpload}
-                    className="hidden"
-                    disabled={uploading}
-                  />
-                  {uploading ? (
-                    <Loader2 className="w-8 h-8 animate-spin text-accent" />
-                  ) : (
-                    <Upload className="w-8 h-8 text-accent" />
-                  )}
-                </label>
+                {isProtetor && (
+                  <label className="w-32 h-32 border-2 border-dashed border-accent rounded-xl flex items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handlePhotoUpload}
+                      className="hidden"
+                      disabled={uploading}
+                    />
+                    {uploading ? (
+                      <Loader2 className="w-8 h-8 animate-spin text-accent" />
+                    ) : (
+                      <Upload className="w-8 h-8 text-accent" />
+                    )}
+                  </label>
+                )}
               </div>
             </div>
 
             <div className="flex gap-4">
-              <Button
-                type="submit"
-                className="flex-1 gap-2"
-                size="lg"
-                disabled={loading}
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Salvando...
-                  </>
-                ) : (
-                  <>
-                    <Award className="w-5 h-5" />
-                    {isEditing ? "💾 Atualizar Informações" : "✨ Cadastrar Gatinho"}
-                  </>
-                )}
-              </Button>
+              {isProtetor && (
+                <Button
+                  type="submit"
+                  className="flex-1 gap-2"
+                  size="lg"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Salvando...
+                    </>
+                  ) : (
+                    <>
+                      <Award className="w-5 h-5" />
+                      {isEditing ? "💾 Atualizar Informações" : "✨ Cadastrar Gatinho"}
+                    </>
+                  )}
+                </Button>
+              )}
               <Button
                 type="button"
                 variant="secondary"
                 size="lg"
                 onClick={() => navigate("/censo")}
+                className={!isProtetor ? "flex-1" : ""}
               >
-                Cancelar
+                {isProtetor ? "Cancelar" : "Voltar"}
               </Button>
             </div>
           </form>

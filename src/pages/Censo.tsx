@@ -109,14 +109,15 @@ const Censo = () => {
                 className="pl-10 rounded-full"
               />
             </div>
-            <Button 
-              onClick={() => navigate("/cadastro-gato")} 
-              className="gap-2"
-              disabled={!isProtetor}
-            >
-              <Plus className="w-4 h-4" />
-              Cadastrar
-            </Button>
+            {isProtetor && (
+              <Button 
+                onClick={() => navigate("/cadastro-gato")} 
+                className="gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                Cadastrar
+              </Button>
+            )}
           </div>
         </div>
 
@@ -158,12 +159,19 @@ const Censo = () => {
               </DialogHeader>
 
               <div className="space-y-4">
-                {selectedCat.fotos?.[0] && (
-                  <img
-                    src={selectedCat.fotos[0]}
-                    alt={selectedCat.nome}
-                    className="w-full h-64 object-cover rounded-2xl"
-                  />
+                {selectedCat.fotos && selectedCat.fotos.length > 0 && (
+                  <div className="space-y-2">
+                    <div className="grid grid-cols-2 gap-2">
+                      {selectedCat.fotos.map((foto, index) => (
+                        <img
+                          key={index}
+                          src={foto}
+                          alt={`${selectedCat.nome} - foto ${index + 1}`}
+                          className="w-full h-32 object-cover rounded-xl"
+                        />
+                      ))}
+                    </div>
+                  </div>
                 )}
 
                 <div className="grid grid-cols-2 gap-4 text-sm">
@@ -201,14 +209,15 @@ const Censo = () => {
                   </div>
                 )}
 
-                <Button
-                  variant="accent"
-                  className="w-full"
-                  onClick={() => navigate(`/editar-gato/${selectedCat.id}`)}
-                  disabled={!isProtetor}
-                >
-                  Editar
-                </Button>
+                {isProtetor && (
+                  <Button
+                    variant="accent"
+                    className="w-full"
+                    onClick={() => navigate(`/editar-gato/${selectedCat.id}`)}
+                  >
+                    Editar
+                  </Button>
+                )}
               </div>
             </>
           )}

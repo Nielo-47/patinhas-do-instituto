@@ -163,14 +163,16 @@ const Protetores = () => {
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-3">
-                    <Button variant="accent" size="sm" className="gap-2" disabled={!isProtetor}>
-                      ✏️ Editar
-                    </Button>
-                    <Button variant="secondary" size="sm" className="gap-2" disabled={!isProtetor}>
-                      📊 Atividade
-                    </Button>
-                  </div>
+                  {isProtetor && (
+                    <div className="flex flex-col gap-3">
+                      <Button variant="accent" size="sm" className="gap-2">
+                        ✏️ Editar
+                      </Button>
+                      <Button variant="secondary" size="sm" className="gap-2">
+                        📊 Atividade
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </Card>
             ))}
