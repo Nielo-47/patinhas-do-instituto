@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/lib/supabase";
@@ -25,7 +26,7 @@ const Protetores = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const { isProtetor } = useAuth();
+  const { isProtetor, isAdmin, protetorId } = useAuth();
 
   useEffect(() => {
     fetchProtetores();
@@ -163,22 +164,29 @@ const Protetores = () => {
                     </div>
                   </div>
 
-                  {isProtetor && (
-                    <div className="flex flex-col gap-3">
+                  <div className="flex flex-col gap-3">
+                    <Button 
+                      variant="secondary" 
+                      size="sm" 
+                      className="gap-2"
+                      onClick={() => navigate(`/atividade-protetor/${protetor.id}`)}
+                    >
+                      📊 Ver Atividade
+                    </Button>
+                    {(isAdmin || protetorId === protetor.id) && (
                       <Button variant="accent" size="sm" className="gap-2">
-                        ✏️ Editar
+                        ✏️ Editar Protetor
                       </Button>
-                      <Button variant="secondary" size="sm" className="gap-2">
-                        📊 Atividade
-                      </Button>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               </Card>
             ))}
           </div>
         )}
       </main>
+
+      <Footer />
     </div>
   );
 };

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
 import { supabase, CatStatus, CatSex } from "@/lib/supabase";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -203,6 +204,8 @@ const Graficos = () => {
           </Card>
         </div>
       </main>
+
+      <Footer />
     </div>
   );
 };

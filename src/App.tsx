@@ -11,6 +11,8 @@ import CadastroGato from "./pages/CadastroGato";
 import Graficos from "./pages/Graficos";
 import Protetores from "./pages/Protetores";
 import Memorial from "./pages/Memorial";
+import AtividadeProtetor from "./pages/AtividadeProtetor";
+import ComoAjudar from "./pages/ComoAjudar";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +33,8 @@ const App = () => (
             <Route path="/graficos" element={<Graficos />} />
             <Route path="/protetores" element={<Protetores />} />
             <Route path="/memorial" element={<Memorial />} />
+            <Route path="/atividade-protetor/:id" element={<AtividadeProtetor />} />
+            <Route path="/como-ajudar" element={<ComoAjudar />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

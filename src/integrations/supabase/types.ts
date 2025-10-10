@@ -114,6 +114,7 @@ export type Database = {
           created_at: string
           data_cadastro: string
           email: string
+          forma_de_contato: string | null
           foto_url: string | null
           gatos_cadastrados: number
           gatos_editados: number
@@ -127,6 +128,7 @@ export type Database = {
           created_at?: string
           data_cadastro?: string
           email: string
+          forma_de_contato?: string | null
           foto_url?: string | null
           gatos_cadastrados?: number
           gatos_editados?: number
@@ -140,6 +142,7 @@ export type Database = {
           created_at?: string
           data_cadastro?: string
           email?: string
+          forma_de_contato?: string | null
           foto_url?: string | null
           gatos_cadastrados?: number
           gatos_editados?: number
@@ -150,14 +153,42 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
+      app_role: "admin" | "user"
       cat_sex: "macho" | "femea" | "desconhecido"
       cat_status:
         | "no_campus"
@@ -292,6 +323,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["admin", "user"],
       cat_sex: ["macho", "femea", "desconhecido"],
       cat_status: [
         "no_campus",
