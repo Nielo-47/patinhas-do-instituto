@@ -141,7 +141,7 @@ const Memorial = () => {
         </DialogContent>
       </Dialog>
 
-      <Footer />
+      <Footer variant="inverted" />
     </div>
   );
 };

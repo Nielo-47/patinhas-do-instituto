@@ -2,12 +2,13 @@ import { Link, useLocation } from "react-router-dom";
 import { Logo } from "./Logo";
 import { Button } from "./ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { UserCircle, LogOut } from "lucide-react";
+import { UserCircle, LogOut, Shield } from "lucide-react";
 import { signOut } from "@/lib/supabase";
 import { toast } from "sonner";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 
 export const Navbar = () => {
-  const { isProtetor } = useAuth();
+  const { isProtetor, isProtetorAdmin } = useAuth();
   const location = useLocation();
   
   const isActive = (path: string) => location.pathname === path;
@@ -78,6 +79,25 @@ export const Navbar = () => {
             </Link>
           </div>
           
+          {isProtetorAdmin && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="secondary" size="sm" className="gap-2">
+                  <Shield className="w-4 h-4" />
+                  Admin
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => window.location.href = "/cadastro-protetor"}>
+                  Cadastrar Protetor
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => window.location.href = "/gerenciar-carrossel"}>
+                  Gerenciar Carrossel
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+
           {isProtetor ? (
             <Button
               variant="outline"

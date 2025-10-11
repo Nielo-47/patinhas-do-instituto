@@ -225,7 +225,7 @@ const Censo = () => {
         </DialogContent>
       </Dialog>
 
-      <Footer />
+      <Footer variant="inverted" />
     </div>
   );
 };

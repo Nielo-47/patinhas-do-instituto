@@ -205,7 +205,7 @@ const Graficos = () => {
         </div>
       </main>
 
-      <Footer />
+      <Footer variant="inverted" />
     </div>
   );
 };

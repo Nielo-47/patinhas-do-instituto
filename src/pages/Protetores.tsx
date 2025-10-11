@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2, Search, UserCircle, Heart, TrendingUp, Award } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { ProtetorProfileModal } from "@/components/ProtetorProfileModal";
 
 interface Protetor {
   id: string;
@@ -25,6 +26,7 @@ const Protetores = () => {
   const [filteredProtetores, setFilteredProtetores] = useState<Protetor[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
+  const [selectedProtetor, setSelectedProtetor] = useState<Protetor | null>(null);
   const navigate = useNavigate();
   const { isProtetor, isAdmin, protetorId } = useAuth();
 
@@ -169,12 +171,17 @@ const Protetores = () => {
                       variant="secondary" 
                       size="sm" 
                       className="gap-2"
-                      onClick={() => navigate(`/atividade-protetor/${protetor.id}`)}
+                      onClick={() => setSelectedProtetor(protetor)}
                     >
                       📊 Ver Atividade
                     </Button>
                     {(isAdmin || protetorId === protetor.id) && (
-                      <Button variant="accent" size="sm" className="gap-2">
+                      <Button 
+                        variant="accent" 
+                        size="sm" 
+                        className="gap-2"
+                        onClick={() => navigate(`/protetores/${protetor.id}/editar`)}
+                      >
                         ✏️ Editar Protetor
                       </Button>
                     )}
@@ -186,7 +193,13 @@ const Protetores = () => {
         )}
       </main>
 
-      <Footer />
+      <ProtetorProfileModal
+        protetor={selectedProtetor}
+        open={!!selectedProtetor}
+        onOpenChange={(open) => !open && setSelectedProtetor(null)}
+      />
+
+      <Footer variant="inverted" />
     </div>
   );
 };

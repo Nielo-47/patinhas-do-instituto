@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      carrossel_home: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          descricao: string | null
+          id: number
+          imagem_url: string
+          ordem: number
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          descricao?: string | null
+          id?: number
+          imagem_url: string
+          ordem?: number
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          descricao?: string | null
+          id?: number
+          imagem_url?: string
+          ordem?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       gatos: {
         Row: {
           caracteristicas: string | null
@@ -119,6 +149,7 @@ export type Database = {
           gatos_cadastrados: number
           gatos_editados: number
           id: string
+          is_admin: boolean
           nome: string
           updated_at: string
           user_id: string
@@ -133,6 +164,7 @@ export type Database = {
           gatos_cadastrados?: number
           gatos_editados?: number
           id?: string
+          is_admin?: boolean
           nome: string
           updated_at?: string
           user_id: string
@@ -147,6 +179,7 @@ export type Database = {
           gatos_cadastrados?: number
           gatos_editados?: number
           id?: string
+          is_admin?: boolean
           nome?: string
           updated_at?: string
           user_id?: string

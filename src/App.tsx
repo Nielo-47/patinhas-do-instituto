@@ -13,6 +13,9 @@ import Protetores from "./pages/Protetores";
 import Memorial from "./pages/Memorial";
 import AtividadeProtetor from "./pages/AtividadeProtetor";
 import ComoAjudar from "./pages/ComoAjudar";
+import EditarProtetor from "./pages/EditarProtetor";
+import CadastroProtetor from "./pages/CadastroProtetor";
+import GerenciarCarrossel from "./pages/GerenciarCarrossel";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +35,9 @@ const App = () => (
             <Route path="/editar-gato/:id" element={<CadastroGato />} />
             <Route path="/graficos" element={<Graficos />} />
             <Route path="/protetores" element={<Protetores />} />
+            <Route path="/protetores/:id/editar" element={<EditarProtetor />} />
+            <Route path="/cadastro-protetor" element={<CadastroProtetor />} />
+            <Route path="/gerenciar-carrossel" element={<GerenciarCarrossel />} />
             <Route path="/memorial" element={<Memorial />} />
             <Route path="/atividade-protetor/:id" element={<AtividadeProtetor />} />
             <Route path="/como-ajudar" element={<ComoAjudar />} />

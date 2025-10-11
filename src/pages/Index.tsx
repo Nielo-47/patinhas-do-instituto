@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { CatCard } from "@/components/CatCard";
+import { HomeCarousel } from "@/components/HomeCarousel";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase, CatStatus } from "@/lib/supabase";
@@ -52,6 +53,9 @@ const Index = () => {
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-4 py-8">
+        {/* Carousel */}
+        <HomeCarousel />
+
         {/* Hero Section */}
         <section className="relative overflow-hidden rounded-3xl mb-12 bg-gradient-yellow-red p-8 md:p-16">
           <div className="grid md:grid-cols-2 gap-8 items-center">
