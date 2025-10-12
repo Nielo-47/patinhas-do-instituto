@@ -100,6 +100,47 @@ export type Database = {
           },
         ]
       }
+      pedidos_adocao: {
+        Row: {
+          contato_candidato: string
+          created_at: string
+          data_pedido: string
+          gato_id: string
+          id: string
+          nome_candidato: string
+          status: string
+          termo_compromisso_aceito: boolean
+        }
+        Insert: {
+          contato_candidato: string
+          created_at?: string
+          data_pedido?: string
+          gato_id: string
+          id?: string
+          nome_candidato: string
+          status?: string
+          termo_compromisso_aceito?: boolean
+        }
+        Update: {
+          contato_candidato?: string
+          created_at?: string
+          data_pedido?: string
+          gato_id?: string
+          id?: string
+          nome_candidato?: string
+          status?: string
+          termo_compromisso_aceito?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pedidos_adocao_gato_id_fkey"
+            columns: ["gato_id"]
+            isOneToOne: false
+            referencedRelation: "gatos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       protetor_atividade_historico: {
         Row: {
           created_at: string
