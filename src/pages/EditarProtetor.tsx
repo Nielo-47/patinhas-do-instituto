@@ -13,7 +13,7 @@ import { Loader2, Upload, X, UserCircle, Award, Star } from "lucide-react";
 const EditarProtetor = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user, protetorId, isAdmin } = useAuth();
+  const { user, protetorId, isAdmin, loading: authLoading, isProtetorAdmin } = useAuth();
 
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -29,20 +29,16 @@ const EditarProtetor = () => {
   }, [id]);
 
   const checkAccess = async () => {
+    // Wait for auth to load
+    if (authLoading) return;
+
     if (!user) {
       toast.error("Você precisa estar logado");
       navigate("/auth");
       return;
     }
 
-    // Verificar se o usuário tem permissão para editar este protetor
-    const { data: protetorData } = await supabase
-      .from('protetores')
-      .select('is_admin')
-      .eq('id', id)
-      .single();
-
-    if (!isAdmin && protetorId !== id) {
+    if (!isProtetorAdmin && protetorId !== id) {
       toast.error("Você não tem permissão para editar este protetor");
       navigate("/protetores");
     }

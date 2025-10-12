@@ -6,8 +6,9 @@ import { HomeCarousel } from "@/components/HomeCarousel";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase, CatStatus } from "@/lib/supabase";
-import { Loader2, Instagram, Heart, Sparkles, Award } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Loader2, Instagram, Heart, Sparkles, Award, Settings } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import heroCats from "@/assets/hero-cats.jpg";
 
 interface Cat {
@@ -27,6 +28,8 @@ const Index = () => {
   const [cats, setCats] = useState<Cat[]>([]);
   const [selectedCat, setSelectedCat] = useState<Cat | null>(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const { isProtetorAdmin } = useAuth();
 
   useEffect(() => {
     fetchCats();
@@ -55,6 +58,21 @@ const Index = () => {
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Carousel */}
         <HomeCarousel />
+        
+        {/* Manage Carousel Button - Admin Only */}
+        {isProtetorAdmin && (
+          <div className="flex justify-center mt-4 mb-8">
+            <Button 
+              variant="secondary" 
+              size="lg" 
+              className="gap-2"
+              onClick={() => navigate("/gerenciar-carrossel")}
+            >
+              <Settings className="w-5 h-5" />
+              Gerenciar Carrossel
+            </Button>
+          </div>
+        )}
 
         {/* Hero Section */}
         <section className="relative overflow-hidden rounded-3xl mb-12 bg-gradient-yellow-red p-8 md:p-16">

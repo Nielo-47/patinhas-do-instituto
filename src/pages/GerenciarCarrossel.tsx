@@ -22,7 +22,7 @@ interface CarouselSlide {
 
 const GerenciarCarrossel = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading: authLoading, isProtetorAdmin } = useAuth();
   const [loading, setLoading] = useState(true);
   const [isUserAdmin, setIsUserAdmin] = useState(false);
   const [slides, setSlides] = useState<CarouselSlide[]>([]);
@@ -48,19 +48,16 @@ const GerenciarCarrossel = () => {
   }, [isUserAdmin]);
 
   const checkAdminAccess = async () => {
+    // Wait for auth to load
+    if (authLoading) return;
+
     if (!user) {
       toast.error("Você precisa estar logado");
       navigate("/auth");
       return;
     }
 
-    const { data } = await supabase
-      .from('protetores')
-      .select('is_admin')
-      .eq('user_id', user.id)
-      .single();
-
-    if (!data || !data.is_admin) {
+    if (!isProtetorAdmin) {
       toast.error("Apenas administradores podem acessar esta página");
       navigate("/");
       return;

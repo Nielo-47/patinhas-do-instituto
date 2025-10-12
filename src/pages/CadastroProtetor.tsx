@@ -13,7 +13,7 @@ import { Loader2, UserPlus, Award, Star, Shield } from "lucide-react";
 
 const CadastroProtetor = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading: authLoading, isProtetorAdmin } = useAuth();
   const [loading, setLoading] = useState(false);
   const [isUserAdmin, setIsUserAdmin] = useState(false);
 
@@ -28,20 +28,16 @@ const CadastroProtetor = () => {
   }, [user]);
 
   const checkAdminAccess = async () => {
+    // Wait for auth to load
+    if (authLoading) return;
+
     if (!user) {
       toast.error("Você precisa estar logado");
       navigate("/auth");
       return;
     }
 
-    // Verificar se o usuário atual é admin
-    const { data } = await supabase
-      .from('protetores')
-      .select('is_admin')
-      .eq('user_id', user.id)
-      .single();
-
-    if (!data || !data.is_admin) {
+    if (!isProtetorAdmin) {
       toast.error("Apenas administradores podem acessar esta página");
       navigate("/");
       return;

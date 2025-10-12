@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/lib/supabase";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { Loader2, Search, UserCircle, Heart, TrendingUp, Award } from "lucide-react";
+import { Loader2, Search, UserCircle, Heart, TrendingUp, Award, UserPlus } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { ProtetorProfileModal } from "@/components/ProtetorProfileModal";
 
@@ -28,7 +28,7 @@ const Protetores = () => {
   const [loading, setLoading] = useState(true);
   const [selectedProtetor, setSelectedProtetor] = useState<Protetor | null>(null);
   const navigate = useNavigate();
-  const { isProtetor, isAdmin, protetorId } = useAuth();
+  const { isProtetor, isAdmin, protetorId, isProtetorAdmin } = useAuth();
 
   useEffect(() => {
     fetchProtetores();
@@ -87,14 +87,28 @@ const Protetores = () => {
             <span className="text-secondary/70 ml-2">protetores ativos</span>
           </div>
 
-          <div className="relative w-full md:w-96">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-secondary/50" />
-            <Input
-              placeholder="Buscar protetor..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-12 h-12 rounded-xl border-2 border-accent bg-card text-secondary font-medium"
-            />
+          <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
+            {isProtetorAdmin && (
+              <Button 
+                variant="accent" 
+                size="lg" 
+                className="gap-2 w-full md:w-auto"
+                onClick={() => navigate("/cadastro-protetor")}
+              >
+                <UserPlus className="w-5 h-5" />
+                Cadastrar Novo Protetor
+              </Button>
+            )}
+
+            <div className="relative w-full md:w-96">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-secondary/50" />
+              <Input
+                placeholder="Buscar protetor..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-12 h-12 rounded-xl border-2 border-accent bg-card text-secondary font-medium"
+              />
+            </div>
           </div>
         </div>
 
@@ -199,7 +213,7 @@ const Protetores = () => {
         onOpenChange={(open) => !open && setSelectedProtetor(null)}
       />
 
-      <Footer variant="inverted" />
+      <Footer />
     </div>
   );
 };

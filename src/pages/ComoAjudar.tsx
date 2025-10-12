@@ -206,7 +206,7 @@ const ComoAjudar = () => {
         </div>
       </main>
 
-      <Footer variant="inverted" />
+      <Footer />
     </div>
   );
 };
