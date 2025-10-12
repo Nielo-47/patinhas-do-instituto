@@ -17,6 +17,8 @@ import ComoAjudar from "./pages/ComoAjudar";
 import EditarProtetor from "./pages/EditarProtetor";
 import CadastroProtetor from "./pages/CadastroProtetor";
 import GerenciarCarrossel from "./pages/GerenciarCarrossel";
+import FormularioAdocao from "./pages/FormularioAdocao";
+import PedidosAdocao from "./pages/PedidosAdocao";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -54,6 +56,8 @@ const App = () => (
             <Route path="/memorial" element={<Memorial />} />
             <Route path="/atividade-protetor/:id" element={<AtividadeProtetor />} />
             <Route path="/como-ajudar" element={<ComoAjudar />} />
+            <Route path="/gatos/:id/adotar" element={<FormularioAdocao />} />
+            <Route path="/pedidos-adocao" element={<PedidosAdocao />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

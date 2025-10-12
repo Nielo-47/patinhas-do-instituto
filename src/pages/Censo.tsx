@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { CatCard } from "@/components/CatCard";
+import { CatDetailsModal } from "@/components/CatDetailsModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase, CatStatus } from "@/lib/supabase";
 import { Loader2, Search, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -148,82 +148,11 @@ const Censo = () => {
         )}
       </main>
 
-      {/* Cat Detail Dialog */}
-      <Dialog open={!!selectedCat} onOpenChange={() => setSelectedCat(null)}>
-        <DialogContent className="max-w-2xl bg-card border-4 border-accent rounded-3xl">
-          {selectedCat && (
-            <>
-              <DialogHeader>
-                <DialogTitle className="text-2xl font-bold text-secondary">
-                  {selectedCat.nome}
-                </DialogTitle>
-              </DialogHeader>
-
-              <div className="space-y-4">
-                {selectedCat.fotos && selectedCat.fotos.length > 0 && (
-                  <div className="space-y-2">
-                    <div className="grid grid-cols-2 gap-2">
-                      {selectedCat.fotos.map((foto, index) => (
-                        <img
-                          key={index}
-                          src={foto}
-                          alt={`${selectedCat.nome} - foto ${index + 1}`}
-                          className="w-full h-32 object-cover rounded-xl"
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <p className="font-bold text-secondary">Sexo:</p>
-                    <p className="text-muted-foreground capitalize">{selectedCat.sexo}</p>
-                  </div>
-                  <div>
-                    <p className="font-bold text-secondary">Status:</p>
-                    <p className="text-muted-foreground capitalize">
-                      {selectedCat.status.replace('_', ' ')}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="font-bold text-secondary">Castrado:</p>
-                    <p className="text-muted-foreground">{selectedCat.castrado ? 'Sim' : 'Não'}</p>
-                  </div>
-                  <div>
-                    <p className="font-bold text-secondary">Vacinado:</p>
-                    <p className="text-muted-foreground">{selectedCat.vacinado ? 'Sim' : 'Não'}</p>
-                  </div>
-                </div>
-
-                {selectedCat.caracteristicas && (
-                  <div>
-                    <p className="font-bold text-secondary mb-1">Características:</p>
-                    <p className="text-muted-foreground">{selectedCat.caracteristicas}</p>
-                  </div>
-                )}
-
-                {selectedCat.local_encontrado && (
-                  <div>
-                    <p className="font-bold text-secondary mb-1">Local:</p>
-                    <p className="text-muted-foreground">{selectedCat.local_encontrado}</p>
-                  </div>
-                )}
-
-                {isProtetor && (
-                  <Button
-                    variant="accent"
-                    className="w-full"
-                    onClick={() => navigate(`/editar-gato/${selectedCat.id}`)}
-                  >
-                    Editar
-                  </Button>
-                )}
-              </div>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
+      <CatDetailsModal
+        cat={selectedCat}
+        isOpen={!!selectedCat}
+        onClose={() => setSelectedCat(null)}
+      />
 
       <Footer />
     </div>

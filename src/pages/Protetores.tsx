@@ -28,7 +28,13 @@ const Protetores = () => {
   const [loading, setLoading] = useState(true);
   const [selectedProtetor, setSelectedProtetor] = useState<Protetor | null>(null);
   const navigate = useNavigate();
-  const { isProtetor, isAdmin, protetorId, isProtetorAdmin } = useAuth();
+  const { user, loading: authLoading, isProtetor, isAdmin, protetorId, isProtetorAdmin } = useAuth();
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate("/auth");
+    }
+  }, [user, authLoading, navigate]);
 
   useEffect(() => {
     fetchProtetores();
@@ -60,6 +66,18 @@ const Protetores = () => {
       setFilteredProtetores(protetores);
     }
   }, [searchTerm, protetores]);
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen gradient-purple-dark flex items-center justify-center">
+        <Loader2 className="w-12 h-12 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen gradient-purple-dark">

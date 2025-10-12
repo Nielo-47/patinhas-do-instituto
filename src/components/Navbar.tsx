@@ -76,6 +76,17 @@ export const Navbar = () => {
                 Como Ajudar
               </Button>
             </Link>
+            {isProtetor && (
+              <Link to="/pedidos-adocao">
+                <Button
+                  variant={isActive("/pedidos-adocao") ? "secondary" : "ghost"}
+                  size="sm"
+                  className={isActive("/pedidos-adocao") ? "" : "text-accent-foreground hover:bg-accent-foreground/10"}
+                >
+                  Pedidos
+                </Button>
+              </Link>
+            )}
           </div>
 
           {isProtetor ? (

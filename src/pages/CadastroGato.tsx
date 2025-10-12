@@ -61,6 +61,12 @@ const CadastroGato = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Validar limite de 5 fotos
+    if (fotos.length >= 5) {
+      toast.error("Limite de 5 fotos por gato atingido");
+      return;
+    }
+
     setUploading(true);
     const tempId = id || 'temp-' + Date.now();
     const { data, error } = await uploadCatPhoto(file, tempId);
@@ -277,7 +283,7 @@ const CadastroGato = () => {
                   </div>
                 ))}
 
-                {isProtetor && (
+                {isProtetor && fotos.length < 5 && (
                   <label className="w-32 h-32 border-2 border-dashed border-accent rounded-xl flex items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors">
                     <input
                       type="file"
@@ -294,6 +300,11 @@ const CadastroGato = () => {
                   </label>
                 )}
               </div>
+              {fotos.length >= 5 && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  Limite de 5 fotos atingido
+                </p>
+              )}
             </div>
 
             <div className="flex gap-4">
