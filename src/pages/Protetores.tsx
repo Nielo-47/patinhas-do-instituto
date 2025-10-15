@@ -6,29 +6,35 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/lib/supabase";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { Loader2, Search, UserCircle, Heart, TrendingUp, Award, UserPlus } from "lucide-react";
+import {
+  Loader2,
+  Search,
+  UserCircle,
+  Heart,
+  TrendingUp,
+  Award,
+  UserPlus,
+} from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { ProtetorProfileModal } from "@/components/ProtetorProfileModal";
-
-interface Protetor {
-  id: string;
-  nome: string;
-  email: string;
-  campus: string;
-  data_cadastro: string;
-  gatos_cadastrados: number;
-  gatos_editados: number;
-  foto_url: string | null;
-}
+import { Protetor } from "@/lib/models";
 
 const Protetores = () => {
   const [protetores, setProtetores] = useState<Protetor[]>([]);
   const [filteredProtetores, setFilteredProtetores] = useState<Protetor[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
-  const [selectedProtetor, setSelectedProtetor] = useState<Protetor | null>(null);
+  const [selectedProtetor, setSelectedProtetor] = useState<Protetor | null>(
+    null
+  );
   const navigate = useNavigate();
-  const { user, loading: authLoading, isProtetor, isAdmin, protetorId, isProtetorAdmin } = useAuth();
+  const {
+    user,
+    loading: authLoading,
+    isProtetor,
+    protetorId,
+    isProtetorAdmin,
+  } = useAuth();
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -43,9 +49,9 @@ const Protetores = () => {
   const fetchProtetores = async () => {
     setLoading(true);
     const { data, error } = await supabase
-      .from('protetores')
-      .select('*')
-      .order('data_cadastro', { ascending: false });
+      .from("protetores")
+      .select("*")
+      .order("data_cadastro", { ascending: false });
 
     if (!error && data) {
       setProtetores(data);
@@ -56,10 +62,11 @@ const Protetores = () => {
 
   useEffect(() => {
     if (searchTerm) {
-      const filtered = protetores.filter(p =>
-        p.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.campus.toLowerCase().includes(searchTerm.toLowerCase())
+      const filtered = protetores.filter(
+        (p) =>
+          p.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          p.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          p.campus.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setFilteredProtetores(filtered);
     } else {
@@ -100,16 +107,16 @@ const Protetores = () => {
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
           <div className="bg-primary rounded-2xl px-6 py-3 border-2 border-accent">
             <span className="text-2xl font-bold text-secondary">
-              {filteredProtetores.length} 
+              {filteredProtetores.length}
             </span>
             <span className="text-secondary/70 ml-2">protetores ativos</span>
           </div>
 
           <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
             {isProtetorAdmin && (
-              <Button 
-                variant="accent" 
-                size="lg" 
+              <Button
+                variant="accent"
+                size="lg"
                 className="gap-2 w-full md:w-auto"
                 onClick={() => navigate("/cadastro-protetor")}
               >
@@ -169,16 +176,22 @@ const Protetores = () => {
                       <div className="bg-card rounded-xl p-3">
                         <span className="text-secondary/70">📅 Cadastro:</span>
                         <p className="font-bold text-secondary">
-                          {new Date(protetor.data_cadastro).toLocaleDateString('pt-BR')}
+                          {new Date(protetor.data_cadastro).toLocaleDateString(
+                            "pt-BR"
+                          )}
                         </p>
                       </div>
                       <div className="bg-card rounded-xl p-3">
                         <span className="text-secondary/70">🏫 Campus:</span>
-                        <p className="font-bold text-secondary">{protetor.campus}</p>
+                        <p className="font-bold text-secondary">
+                          {protetor.campus}
+                        </p>
                       </div>
                       <div className="bg-card rounded-xl p-3 md:col-span-2">
                         <span className="text-secondary/70">📧 Email:</span>
-                        <p className="font-bold text-secondary">{protetor.email}</p>
+                        <p className="font-bold text-secondary">
+                          {protetor.email}
+                        </p>
                       </div>
                     </div>
 
@@ -199,20 +212,22 @@ const Protetores = () => {
                   </div>
 
                   <div className="flex flex-col gap-3">
-                    <Button 
-                      variant="secondary" 
-                      size="sm" 
+                    <Button
+                      variant="secondary"
+                      size="sm"
                       className="gap-2"
                       onClick={() => setSelectedProtetor(protetor)}
                     >
                       📊 Ver Atividade
                     </Button>
-                    {(isAdmin || protetorId === protetor.id) && (
-                      <Button 
-                        variant="accent" 
-                        size="sm" 
+                    {(isProtetorAdmin || protetorId === protetor.id) && (
+                      <Button
+                        variant="accent"
+                        size="sm"
                         className="gap-2"
-                        onClick={() => navigate(`/protetores/${protetor.id}/editar`)}
+                        onClick={() =>
+                          navigate(`/protetores/${protetor.id}/editar`)
+                        }
                       >
                         ✏️ Editar Protetor
                       </Button>

@@ -13,7 +13,7 @@ import { Loader2, Upload, X, UserCircle, Award, Star } from "lucide-react";
 const EditarProtetor = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user, protetorId, isAdmin, loading: authLoading, isProtetorAdmin } = useAuth();
+  const { user, protetorId, loading: authLoading, isProtetorAdmin } = useAuth();
 
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -48,9 +48,9 @@ const EditarProtetor = () => {
     if (!id) return;
 
     const { data, error } = await supabase
-      .from('protetores')
-      .select('*')
-      .eq('id', id)
+      .from("protetores")
+      .select("*")
+      .eq("id", id)
       .single();
 
     if (!error && data) {
@@ -68,12 +68,12 @@ const EditarProtetor = () => {
 
     setUploading(true);
 
-    const fileExt = file.name.split('.').pop();
+    const fileExt = file.name.split(".").pop();
     const fileName = `${id}-${Date.now()}.${fileExt}`;
     const filePath = `protetor-photos/${fileName}`;
 
     const { error: uploadError } = await supabase.storage
-      .from('cat-photos')
+      .from("cat-photos")
       .upload(filePath, file);
 
     if (uploadError) {
@@ -82,9 +82,9 @@ const EditarProtetor = () => {
       return;
     }
 
-    const { data: { publicUrl } } = supabase.storage
-      .from('cat-photos')
-      .getPublicUrl(filePath);
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from("cat-photos").getPublicUrl(filePath);
 
     setFotoUrl(publicUrl);
     toast.success("Foto adicionada!");
@@ -107,7 +107,7 @@ const EditarProtetor = () => {
 
     try {
       const { error } = await supabase
-        .from('protetores')
+        .from("protetores")
         .update({
           nome,
           email,
@@ -115,7 +115,7 @@ const EditarProtetor = () => {
           forma_de_contato: formaContato || null,
           foto_url: fotoUrl,
         })
-        .eq('id', id);
+        .eq("id", id);
 
       if (error) throw error;
 

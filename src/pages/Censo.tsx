@@ -5,35 +5,25 @@ import { CatCard } from "@/components/CatCard";
 import { CatDetailsModal } from "@/components/CatDetailsModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { supabase, CatStatus } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase";
 import { Loader2, Search, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { Cat, CatStatus } from "@/lib/models";
 
-interface Cat {
-  id: string;
-  nome: string;
-  sexo: string;
-  status: CatStatus;
-  castrado: boolean;
-  vacinado: boolean;
-  data_ultima_vacinacao: string | null;
-  local_encontrado: string | null;
-  caracteristicas: string | null;
-  fotos: string[] | null;
-}
-
+// MODIFICAÇÃO 1: Removido o status "adotado" das opções de filtro
 const statusOptions: { value: CatStatus; label: string }[] = [
-  { value: 'no_campus', label: 'No Campus' },
-  { value: 'em_tratamento', label: 'Em Tratamento' },
-  { value: 'adotado', label: 'Adotado' },
-  { value: 'desconhecido', label: 'Desconhecido' },
+  { value: "no_campus", label: "No Campus" },
+  { value: "em_tratamento", label: "Em Tratamento" },
+  { value: "desconhecido", label: "Desconhecido" },
 ];
 
 const Censo = () => {
   const [cats, setCats] = useState<Cat[]>([]);
   const [filteredCats, setFilteredCats] = useState<Cat[]>([]);
-  const [selectedStatus, setSelectedStatus] = useState<CatStatus | 'all'>('all');
+  const [selectedStatus, setSelectedStatus] = useState<CatStatus | "all">(
+    "all"
+  );
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCat, setSelectedCat] = useState<Cat | null>(null);
   const [loading, setLoading] = useState(true);
@@ -46,15 +36,23 @@ const Censo = () => {
 
   const fetchCats = async () => {
     setLoading(true);
+    // MODIFICAÇÃO 2: Adicionado .neq("status", "adotado") para excluir os adotados da busca inicial
     const { data, error } = await supabase
-      .from('gatos')
-      .select('*')
-      .neq('status', 'falecido')
-      .order('created_at', { ascending: false });
+      .from("gatos")
+      .select("*")
+      .neq("status", "falecido")
+      .neq("status", "adotado") // <-- Adicionado aqui
+      .order("created_at", { ascending: false });
 
     if (!error && data) {
-      setCats(data);
-      setFilteredCats(data);
+      const mappedData = data.map((cat) => ({
+        ...cat,
+        data_adocao_falecimento: cat.data_adocao_falecimento
+          ? new Date(cat.data_adocao_falecimento)
+          : undefined,
+      }));
+      setCats(mappedData);
+      setFilteredCats(mappedData);
     }
     setLoading(false);
   };
@@ -62,12 +60,12 @@ const Censo = () => {
   useEffect(() => {
     let filtered = cats;
 
-    if (selectedStatus !== 'all') {
-      filtered = filtered.filter(cat => cat.status === selectedStatus);
+    if (selectedStatus !== "all") {
+      filtered = filtered.filter((cat) => cat.status === selectedStatus);
     }
 
     if (searchTerm) {
-      filtered = filtered.filter(cat =>
+      filtered = filtered.filter((cat) =>
         cat.nome.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
@@ -84,15 +82,15 @@ const Censo = () => {
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
           <div className="flex gap-2 flex-wrap justify-center">
             <Button
-              variant={selectedStatus === 'all' ? 'default' : 'accent'}
-              onClick={() => setSelectedStatus('all')}
+              variant={selectedStatus === "all" ? "default" : "accent"}
+              onClick={() => setSelectedStatus("all")}
             >
               Todos
             </Button>
-            {statusOptions.map(option => (
+            {statusOptions.map((option) => (
               <Button
                 key={option.value}
-                variant={selectedStatus === option.value ? 'default' : 'accent'}
+                variant={selectedStatus === option.value ? "default" : "accent"}
                 onClick={() => setSelectedStatus(option.value)}
               >
                 {option.label}
@@ -111,8 +109,8 @@ const Censo = () => {
               />
             </div>
             {isProtetor && (
-              <Button 
-                onClick={() => navigate("/cadastro-gato")} 
+              <Button
+                onClick={() => navigate("/cadastro-gato")}
                 className="gap-2"
               >
                 <Plus className="w-4 h-4" />
@@ -126,13 +124,13 @@ const Censo = () => {
           Mostrando {filteredCats.length} de {cats.length} gatos
         </p>
 
-        {/* Cats Grid */}
+        {/* Cats Grid/List */}
         {loading ? (
           <div className="flex justify-center items-center min-h-[400px]">
             <Loader2 className="w-12 h-12 animate-spin text-primary" />
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {filteredCats.map((cat) => (
               <CatCard
                 key={cat.id}

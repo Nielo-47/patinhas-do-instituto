@@ -20,6 +20,8 @@ import GerenciarCarrossel from "./pages/GerenciarCarrossel";
 import FormularioAdocao from "./pages/FormularioAdocao";
 import PedidosAdocao from "./pages/PedidosAdocao";
 import NotFound from "./pages/NotFound";
+import Adotados from "./pages/Adotados";
+import ConfirmarEmail from "./pages/ConfirmarEmail";
 
 const queryClient = new QueryClient();
 
@@ -52,12 +54,20 @@ const App = () => (
             <Route path="/protetores" element={<Protetores />} />
             <Route path="/protetores/:id/editar" element={<EditarProtetor />} />
             <Route path="/cadastro-protetor" element={<CadastroProtetor />} />
-            <Route path="/gerenciar-carrossel" element={<GerenciarCarrossel />} />
+            <Route
+              path="/gerenciar-carrossel"
+              element={<GerenciarCarrossel />}
+            />
             <Route path="/memorial" element={<Memorial />} />
-            <Route path="/atividade-protetor/:id" element={<AtividadeProtetor />} />
+            <Route
+              path="/atividade-protetor/:id"
+              element={<AtividadeProtetor />}
+            />
             <Route path="/como-ajudar" element={<ComoAjudar />} />
-            <Route path="/gatos/:id/adotar" element={<FormularioAdocao />} />
+            <Route path="/adotar-gato/:id" element={<FormularioAdocao />} />
             <Route path="/pedidos-adocao" element={<PedidosAdocao />} />
+            <Route path="/adotados" element={<Adotados />} />
+            <Route path="/confirmar-email" element={<ConfirmarEmail />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

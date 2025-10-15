@@ -14,25 +14,28 @@ interface Cat {
   id: string;
   nome: string;
   fotos: string[] | null;
-  created_at: string;
+  data_adocao_falecimento: string | null;
+  mensagem: string | null;
 }
 
-const Memorial = () => {
+const Adotados = () => {
   const [cats, setCats] = useState<Cat[]>([]);
   const [selectedCat, setSelectedCat] = useState<Cat | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchDeceasedCats();
+    fetchAdoptedCats();
   }, []);
 
-  const fetchDeceasedCats = async () => {
+  const fetchAdoptedCats = async () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("gatos")
-      .select("id, nome, fotos, created_at")
-      .eq("status", "falecido")
-      .order("created_at", { ascending: false });
+      .select("id, nome, fotos, data_adocao_falecimento, mensagem")
+      .eq("status", "adotado")
+      .order("data_adocao_falecimento", { ascending: false });
+
+    console.log("Fetch Adopted Cats - Data:", data);
 
     if (!error && data) {
       setCats(data);
@@ -44,8 +47,9 @@ const Memorial = () => {
     <div
       className="min-h-screen"
       style={{
+        // Gradiente alegre e quente
         background:
-          "linear-gradient(180deg, hsl(283 20% 25%), hsl(283 20% 18%))",
+          "linear-gradient(180deg, hsl(51, 100%, 95%), hsl(51, 100%, 85%))",
       }}
     >
       <Navbar />
@@ -54,15 +58,17 @@ const Memorial = () => {
         <div className="text-center mb-12 animate-fade-in">
           <h1
             className="text-4xl md:text-5xl font-bold mb-4"
-            style={{ color: "hsl(51 100% 50%)" }}
+            // Cor principal escura para contraste
+            style={{ color: "hsl(283 72% 16%)" }}
           >
-            💙 Memorial: Sempre em Nossos Corações
+            🎉 Finais Felizes: Nossos Adotados!
           </h1>
           <p
             className="text-lg opacity-80"
-            style={{ color: "hsl(51 100% 50%)" }}
+            style={{ color: "hsl(283 72% 16%)" }}
           >
-            Homenagem aos amigos que partiram mas nunca serão esquecidos
+            Celebre conosco as histórias de amor e os novos lares que nossos
+            gatinhos encontraram!
           </p>
         </div>
 
@@ -70,28 +76,29 @@ const Memorial = () => {
           <div className="flex justify-center items-center min-h-[400px]">
             <Loader2
               className="w-12 h-12 animate-spin"
-              style={{ color: "hsl(51 100% 50%)" }}
+              style={{ color: "hsl(283 72% 16%)" }}
             />
           </div>
         ) : cats.length === 0 ? (
           <div className="text-center py-20">
-            <p className="text-xl" style={{ color: "hsl(51 100% 50% / 0.7)" }}>
-              Nenhum registro no memorial
+            <p className="text-xl" style={{ color: "hsl(283 72% 16% / 0.7)" }}>
+              Ainda nenhum final feliz registrado. Seja o próximo a adotar!
             </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
             {cats.map((cat) => (
               <div key={cat.id}>
-                {/* Desktop Card View - hidden on mobile */}
+                {/* Desktop Card View */}
                 <div
                   onClick={() => setSelectedCat(cat)}
                   className="hidden sm:block cursor-pointer transition-all duration-300 hover:scale-105"
                   style={{
-                    background: "hsl(0 0% 98%)",
+                    background: "hsl(0 0% 100%)",
                     borderRadius: "1.5rem",
                     padding: "1rem",
-                    border: "2px solid hsl(283 20% 40%)",
+                    // Borda com cor de destaque vibrante
+                    border: "2px solid hsl(13 95% 54%)",
                   }}
                 >
                   <div
@@ -103,16 +110,11 @@ const Memorial = () => {
                         src={cat.fotos[0]}
                         alt={cat.nome}
                         className="w-full h-full object-cover"
-                        style={{ filter: "grayscale(100%)" }}
+                        // Filtro grayscale removido para imagens coloridas
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <span
-                          className="text-6xl"
-                          style={{ filter: "grayscale(100%)" }}
-                        >
-                          🐱
-                        </span>
+                        <span className="text-6xl">🐱</span>
                       </div>
                     )}
                   </div>
@@ -128,24 +130,24 @@ const Memorial = () => {
                       className="text-sm opacity-60"
                       style={{ color: "hsl(283 72% 16%)" }}
                     >
-                      {new Date(cat.created_at).getFullYear()}
+                      Adotado em{" "}
+                      {new Date(cat.data_adocao_falecimento).getFullYear()}
                     </p>
                   </div>
                 </div>
 
-                {/* Mobile List View - visible only on mobile */}
+                {/* Mobile List View */}
                 <div
                   onClick={() => setSelectedCat(cat)}
                   className="sm:hidden cursor-pointer transition-all duration-200 active:scale-95"
                   style={{
-                    background: "hsl(0 0% 98%)",
+                    background: "hsl(0 0% 100%)",
                     borderRadius: "1rem",
                     padding: "0.75rem",
-                    border: "2px solid hsl(283 20% 40%)",
+                    border: "2px solid hsl(13 95% 54%)",
                   }}
                 >
                   <div className="flex items-center gap-3">
-                    {/* Photo thumbnail */}
                     <div
                       className="w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden"
                       style={{ background: "hsl(0 0% 85%)" }}
@@ -155,21 +157,14 @@ const Memorial = () => {
                           src={cat.fotos[0]}
                           alt={cat.nome}
                           className="w-full h-full object-cover"
-                          style={{ filter: "grayscale(100%)" }}
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <span
-                            className="text-3xl"
-                            style={{ filter: "grayscale(100%)" }}
-                          >
-                            🐱
-                          </span>
+                          <span className="text-3xl">🐱</span>
                         </div>
                       )}
                     </div>
 
-                    {/* Info */}
                     <div className="flex-1 min-w-0">
                       <h3
                         className="font-bold text-lg truncate"
@@ -181,8 +176,8 @@ const Memorial = () => {
                         className="text-sm opacity-60"
                         style={{ color: "hsl(283 72% 16%)" }}
                       >
-                        Em memória desde{" "}
-                        {new Date(cat.created_at).getFullYear()}
+                        Encontrou um lar em{" "}
+                        {new Date(cat.data_adocao_falecimento).getFullYear()}
                       </p>
                     </div>
                   </div>
@@ -199,7 +194,7 @@ const Memorial = () => {
           className="max-w-2xl"
           style={{
             background: "hsl(0 0% 100%)",
-            border: "4px solid hsl(283 20% 40%)",
+            border: "4px solid hsl(13 95% 54%)",
             borderRadius: "1.5rem",
           }}
         >
@@ -215,19 +210,56 @@ const Memorial = () => {
               </DialogHeader>
 
               <div className="space-y-4">
-                {selectedCat.fotos?.[0] && (
-                  <img
-                    src={selectedCat.fotos[0]}
-                    alt={selectedCat.nome}
-                    className="w-full h-64 object-cover rounded-2xl"
-                    style={{ filter: "grayscale(100%)" }}
-                  />
-                )}
+                <div
+                  className={`grid gap-4 justify-items-center ${
+                    // prefer responsive columns: 1 on very small, then depending on count
+                    !selectedCat.fotos || selectedCat.fotos.length === 0
+                      ? "grid-cols-1"
+                      : selectedCat.fotos.length === 1
+                      ? "grid-cols-1"
+                      : selectedCat.fotos.length === 2
+                      ? "grid-cols-2"
+                      : "grid-cols-3 md:grid-cols-3"
+                  }`}
+                >
+                  {/* If no photos, show a subtle placeholder */}
+                  {(!selectedCat.fotos || selectedCat.fotos.length === 0) && (
+                    <div className="w-full max-w-md p-8 bg-muted/50 rounded-2xl text-center">
+                      <p className="text-sm text-muted-foreground">
+                        Sem fotos disponíveis
+                      </p>
+                    </div>
+                  )}
 
-                <div className="text-center py-4">
-                  <p style={{ color: "hsl(283 72% 16% / 0.7)" }}>
-                    Em memória desde{" "}
-                    {new Date(selectedCat.created_at).getFullYear()}
+                  {selectedCat.fotos?.map((foto, index) => (
+                    <img
+                      key={index}
+                      src={foto}
+                      alt={`${selectedCat.nome} foto ${index + 1}`}
+                      // width behavior:
+                      // - object-cover fills the square area
+                      // - max-w limits width for single-photo case
+                      className="w-full aspect-square object-cover rounded-2xl max-w-64"
+                    />
+                  ))}
+                </div>
+
+                <div className="text-center py-4 space-y-2">
+                  <p
+                    className="font-semibold"
+                    style={{ color: "hsl(283 72% 16%)" }}
+                  >
+                    Lar doce lar desde{" "}
+                    {new Date(
+                      selectedCat.data_adocao_falecimento
+                    ).getFullYear()}
+                    !
+                  </p>
+                  <p
+                    className="text-sm"
+                    style={{ color: "hsl(283 72% 16% / 0.7)" }}
+                  >
+                    {selectedCat.mensagem || "Obrigado por fazer a diferença!"}
                   </p>
                 </div>
               </div>
@@ -241,4 +273,4 @@ const Memorial = () => {
   );
 };
 
-export default Memorial;
+export default Adotados;

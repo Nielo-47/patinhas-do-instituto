@@ -4,28 +4,29 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
-import { Loader2, ArrowLeft, TrendingUp, Heart, Mail, Phone, MapPin } from "lucide-react";
+import {
+  Loader2,
+  ArrowLeft,
+  TrendingUp,
+  Heart,
+  Mail,
+  Phone,
+  MapPin,
+} from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
-
-interface Protetor {
-  id: string;
-  nome: string;
-  email: string;
-  campus: string;
-  forma_de_contato: string | null;
-  foto_url: string | null;
-  gatos_cadastrados: number;
-  gatos_editados: number;
-}
-
-interface Atividade {
-  data_referencia: string;
-  gatos_cadastrados_mes: number;
-  gatos_editados_mes: number;
-}
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { Protetor, Atividade } from "@/lib/models";
 
 const AtividadeProtetor = () => {
   const { id } = useParams();
@@ -43,9 +44,9 @@ const AtividadeProtetor = () => {
 
   const fetchProtetor = async () => {
     const { data, error } = await supabase
-      .from('protetores')
-      .select('*')
-      .eq('id', id)
+      .from("protetores")
+      .select("*")
+      .eq("id", id)
       .single();
 
     if (!error && data) {
@@ -56,10 +57,10 @@ const AtividadeProtetor = () => {
   const fetchAtividades = async () => {
     setLoading(true);
     const { data, error } = await supabase
-      .from('protetor_atividade_historico')
-      .select('*')
-      .eq('protetor_id', id)
-      .order('data_referencia', { ascending: true });
+      .from("protetor_atividade_historico")
+      .select("*")
+      .eq("protetor_id", id)
+      .order("data_referencia", { ascending: true });
 
     if (!error && data) {
       setAtividades(data);
@@ -67,14 +68,20 @@ const AtividadeProtetor = () => {
     setLoading(false);
   };
 
-  const chartData = atividades.map(a => ({
-    mes: format(new Date(a.data_referencia), 'MMM/yy', { locale: ptBR }),
+  const chartData = atividades.map((a) => ({
+    mes: format(new Date(a.data_referencia), "MMM/yy", { locale: ptBR }),
     cadastrados: a.gatos_cadastrados_mes,
     editados: a.gatos_editados_mes,
   }));
 
-  const totalCadastrados = atividades.reduce((sum, a) => sum + a.gatos_cadastrados_mes, 0);
-  const totalEditados = atividades.reduce((sum, a) => sum + a.gatos_editados_mes, 0);
+  const totalCadastrados = atividades.reduce(
+    (sum, a) => sum + a.gatos_cadastrados_mes,
+    0
+  );
+  const totalEditados = atividades.reduce(
+    (sum, a) => sum + a.gatos_editados_mes,
+    0
+  );
 
   if (!protetor) {
     return (
@@ -91,7 +98,7 @@ const AtividadeProtetor = () => {
       <main className="max-w-7xl mx-auto px-4 py-8 flex-1">
         <Button
           variant="ghost"
-          onClick={() => navigate('/protetores')}
+          onClick={() => navigate("/protetores")}
           className="mb-6 text-primary hover:text-primary/80"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
@@ -120,8 +127,10 @@ const AtividadeProtetor = () => {
             </div>
 
             <div className="flex-1 text-center md:text-left space-y-3">
-              <h2 className="text-3xl font-bold text-secondary">{protetor.nome}</h2>
-              
+              <h2 className="text-3xl font-bold text-secondary">
+                {protetor.nome}
+              </h2>
+
               <div className="flex flex-wrap gap-3 justify-center md:justify-start">
                 <div className="flex items-center gap-2 text-secondary/80">
                   <Mail className="w-4 h-4" />
@@ -149,8 +158,12 @@ const AtividadeProtetor = () => {
             <div className="flex items-center gap-4">
               <Heart className="w-12 h-12 text-accent-foreground" />
               <div>
-                <p className="text-accent-foreground/70 text-sm font-medium">Total de Gatos</p>
-                <p className="text-4xl font-bold text-accent-foreground">{totalCadastrados}</p>
+                <p className="text-accent-foreground/70 text-sm font-medium">
+                  Total de Gatos
+                </p>
+                <p className="text-4xl font-bold text-accent-foreground">
+                  {totalCadastrados}
+                </p>
                 <p className="text-accent-foreground/70 text-xs">cadastrados</p>
               </div>
             </div>
@@ -160,9 +173,15 @@ const AtividadeProtetor = () => {
             <div className="flex items-center gap-4">
               <TrendingUp className="w-12 h-12 text-secondary-foreground" />
               <div>
-                <p className="text-secondary-foreground/70 text-sm font-medium">Total de Edições</p>
-                <p className="text-4xl font-bold text-secondary-foreground">{totalEditados}</p>
-                <p className="text-secondary-foreground/70 text-xs">realizadas</p>
+                <p className="text-secondary-foreground/70 text-sm font-medium">
+                  Total de Edições
+                </p>
+                <p className="text-4xl font-bold text-secondary-foreground">
+                  {totalEditados}
+                </p>
+                <p className="text-secondary-foreground/70 text-xs">
+                  realizadas
+                </p>
               </div>
             </div>
           </Card>
@@ -173,7 +192,7 @@ const AtividadeProtetor = () => {
           <h3 className="text-2xl font-bold text-secondary mb-6 text-center">
             Evolução Mensal da Atividade
           </h3>
-          
+
           {loading ? (
             <div className="flex justify-center items-center h-96">
               <Loader2 className="w-12 h-12 animate-spin text-primary" />
@@ -181,46 +200,51 @@ const AtividadeProtetor = () => {
           ) : chartData.length > 0 ? (
             <ResponsiveContainer width="100%" height={400}>
               <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 204, 0, 0.2)" />
-                <XAxis 
-                  dataKey="mes" 
-                  stroke="hsl(var(--secondary))"
-                  style={{ fontSize: '12px' }}
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="rgba(255, 204, 0, 0.2)"
                 />
-                <YAxis 
+                <XAxis
+                  dataKey="mes"
                   stroke="hsl(var(--secondary))"
-                  style={{ fontSize: '12px' }}
+                  style={{ fontSize: "12px" }}
                 />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'hsl(var(--card))',
-                    border: '2px solid hsl(var(--accent))',
-                    borderRadius: '12px',
-                    color: 'hsl(var(--secondary))'
+                <YAxis
+                  stroke="hsl(var(--secondary))"
+                  style={{ fontSize: "12px" }}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "hsl(var(--card))",
+                    border: "2px solid hsl(var(--accent))",
+                    borderRadius: "12px",
+                    color: "hsl(var(--secondary))",
                   }}
                 />
                 <Legend />
-                <Line 
-                  type="monotone" 
-                  dataKey="cadastrados" 
+                <Line
+                  type="monotone"
+                  dataKey="cadastrados"
                   name="Gatos Cadastrados"
-                  stroke="hsl(var(--accent))" 
+                  stroke="hsl(var(--accent))"
                   strokeWidth={3}
-                  dot={{ fill: 'hsl(var(--accent))', r: 6 }}
+                  dot={{ fill: "hsl(var(--accent))", r: 6 }}
                 />
-                <Line 
-                  type="monotone" 
-                  dataKey="editados" 
+                <Line
+                  type="monotone"
+                  dataKey="editados"
                   name="Gatos Editados"
-                  stroke="hsl(var(--secondary))" 
+                  stroke="hsl(var(--secondary))"
                   strokeWidth={3}
-                  dot={{ fill: 'hsl(var(--secondary))', r: 6 }}
+                  dot={{ fill: "hsl(var(--secondary))", r: 6 }}
                 />
               </LineChart>
             </ResponsiveContainer>
           ) : (
             <div className="text-center py-12 text-secondary/70">
-              <p className="text-lg">Ainda não há dados de atividade para este protetor.</p>
+              <p className="text-lg">
+                Ainda não há dados de atividade para este protetor.
+              </p>
             </div>
           )}
         </Card>

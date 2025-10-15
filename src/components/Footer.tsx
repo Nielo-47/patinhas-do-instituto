@@ -12,7 +12,7 @@ export const Footer = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!nome || !email || !mensagem) {
       toast.error("Preencha todos os campos!");
       return;
@@ -62,7 +62,11 @@ export const Footer = () => {
                 onChange={(e) => setMensagem(e.target.value)}
                 className="bg-primary text-secondary border-accent-foreground min-h-[100px]"
               />
-              <Button type="submit" variant="default" className="w-full bg-primary text-secondary hover:bg-primary/90">
+              <Button
+                type="submit"
+                variant="default"
+                className="w-full bg-primary text-secondary hover:bg-primary/90"
+              >
                 Enviar Mensagem
               </Button>
             </form>
@@ -77,20 +81,22 @@ export const Footer = () => {
             <p className="mb-6 text-accent-foreground/80">
               Sua doação ajuda a cuidar das nossas patinhas! 💛
             </p>
-            
+
             <div className="bg-primary rounded-2xl p-6 text-center">
-              <p className="text-secondary font-bold mb-4">Faça sua doação via PIX:</p>
-              <div className="bg-secondary/10 rounded-xl p-4 mb-4">
-                <img 
-                  src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=patinhasdoinstituto@gmail.com" 
+              <p className="text-secondary font-bold mb-4">
+                Faça sua doação via PIX:
+              </p>
+              <div className="bg-secondary/10 rounded-xl p-2 mb-4">
+                <img
+                  src="pix_patinhas.jpg"
                   alt="QR Code PIX"
-                  className="mx-auto w-48 h-48"
+                  className="mx-auto w-[50%] aspect-ratio"
                 />
               </div>
               <p className="text-sm text-secondary/70">
                 Escaneie o QR Code acima ou use a chave PIX:
               </p>
-              <p className="text-accent-foreground font-bold mt-2">
+              <p className="text-secondary font-bold mt-2">
                 patinhasdoinstituto@gmail.com
               </p>
             </div>
@@ -98,7 +104,10 @@ export const Footer = () => {
         </div>
 
         <div className="mt-8 pt-6 border-t border-accent-foreground/20 text-center text-accent-foreground/70">
-          <p>© 2025 Patinhas do Instituto | Feito com 💛 para nossos amigos felinos</p>
+          <p>
+            © 2025 Patinhas do Instituto | Feito com 💛 para nossos amigos
+            felinos
+          </p>
         </div>
       </div>
     </footer>

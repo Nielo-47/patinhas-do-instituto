@@ -1,33 +1,31 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
-import { signIn, signUp } from "@/lib/supabase";
+import { signIn, resetPassword } from "@/lib/supabase";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
-import { useEffect } from "react";
 import { Logo } from "@/components/Logo";
 import { z } from "zod";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Email inválido" }),
-  password: z.string().min(6, { message: "Senha deve ter no mínimo 6 caracteres" }),
+  password: z
+    .string()
+    .min(6, { message: "Senha deve ter no mínimo 6 caracteres" }),
 });
 
-const signupSchema = loginSchema.extend({
-  nome: z.string().min(3, { message: "Nome deve ter no mínimo 3 caracteres" }),
-  campus: z.string().min(3, { message: "Campus deve ter no mínimo 3 caracteres" }),
+const resetSchema = z.object({
+  email: z.string().email({ message: "Email inválido" }),
 });
 
 const Auth = () => {
-  const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [nome, setNome] = useState("");
-  const [campus, setCampus] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isReset, setIsReset] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -42,10 +40,19 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      if (isLogin) {
+      if (isReset) {
+        const validated = resetSchema.parse({ email });
+        const { error } = await resetPassword(validated.email);
+        if (error) {
+          toast.error("Erro ao enviar email de redefinição");
+          return;
+        }
+        toast.success(
+          "Email de redefinição enviado! Verifique sua caixa de entrada."
+        );
+      } else {
         const validated = loginSchema.parse({ email, password });
         const { error } = await signIn(validated.email, validated.password);
-        
         if (error) {
           if (error.message.includes("Invalid login credentials")) {
             toast.error("Email ou senha incorretos");
@@ -54,29 +61,8 @@ const Auth = () => {
           }
           return;
         }
-
         toast.success("Bem-vindo de volta!");
         navigate("/censo");
-      } else {
-        const validated = signupSchema.parse({ email, password, nome, campus });
-        const { error } = await signUp(
-          validated.email,
-          validated.password,
-          validated.nome,
-          validated.campus
-        );
-        
-        if (error) {
-          if (error.message.includes("already registered")) {
-            toast.error("Este email já está cadastrado");
-          } else {
-            toast.error("Erro ao criar conta");
-          }
-          return;
-        }
-
-        toast.success("Conta criada com sucesso! Faça login para continuar.");
-        setIsLogin(true);
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -93,38 +79,11 @@ const Auth = () => {
         <div className="flex flex-col items-center mb-6">
           <Logo />
           <h1 className="text-2xl font-bold text-secondary mt-4">
-            {isLogin ? "Entrar como Protetor" : "Cadastrar Protetor"}
+            {isReset ? "Redefinir Senha" : "Entrar como Protetor"}
           </h1>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {!isLogin && (
-            <>
-              <div>
-                <Label htmlFor="nome">Nome</Label>
-                <Input
-                  id="nome"
-                  type="text"
-                  value={nome}
-                  onChange={(e) => setNome(e.target.value)}
-                  required
-                  className="rounded-xl"
-                />
-              </div>
-              <div>
-                <Label htmlFor="campus">Campus</Label>
-                <Input
-                  id="campus"
-                  type="text"
-                  value={campus}
-                  onChange={(e) => setCampus(e.target.value)}
-                  required
-                  className="rounded-xl"
-                />
-              </div>
-            </>
-          )}
-
           <div>
             <Label htmlFor="email">Email</Label>
             <Input
@@ -137,36 +96,36 @@ const Auth = () => {
             />
           </div>
 
-          <div>
-            <Label htmlFor="password">Senha</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="rounded-xl"
-            />
-          </div>
+          {!isReset && (
+            <div>
+              <Label htmlFor="password">Senha</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="rounded-xl"
+              />
+            </div>
+          )}
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={loading}
-          >
-            {loading ? "Carregando..." : isLogin ? "Entrar" : "Cadastrar"}
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading
+              ? "Carregando..."
+              : isReset
+              ? "Enviar email de redefinição"
+              : "Entrar"}
           </Button>
         </form>
 
         <div className="mt-4 text-center">
           <button
             type="button"
-            onClick={() => setIsLogin(!isLogin)}
+            onClick={() => setIsReset(!isReset)}
             className="text-sm text-secondary hover:underline"
           >
-            {isLogin
-              ? "Não tem conta? Cadastre-se"
-              : "Já tem conta? Faça login"}
+            {isReset ? "Voltar para login" : "Esqueceu a senha?"}
           </button>
         </div>
       </Card>

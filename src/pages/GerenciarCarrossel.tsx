@@ -9,8 +9,23 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
-import { Loader2, Upload, X, Plus, Edit2, Trash2, Image as ImageIcon, Eye, EyeOff } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Loader2,
+  Upload,
+  X,
+  Plus,
+  Edit2,
+  Trash2,
+  Image as ImageIcon,
+  Eye,
+  EyeOff,
+} from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface CarouselSlide {
   id: number;
@@ -19,6 +34,8 @@ interface CarouselSlide {
   ordem: number;
   ativo: boolean;
 }
+
+const DESCRIPTION_MAX = 300; // change as desired
 
 const GerenciarCarrossel = () => {
   const navigate = useNavigate();
@@ -30,6 +47,10 @@ const GerenciarCarrossel = () => {
   const [editingSlide, setEditingSlide] = useState<CarouselSlide | null>(null);
   const [uploading, setUploading] = useState(false);
 
+  // for preview + load tracking
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [imageLoaded, setImageLoaded] = useState(false);
+
   const [formData, setFormData] = useState({
     imagem_url: "",
     descricao: "",
@@ -39,7 +60,7 @@ const GerenciarCarrossel = () => {
 
   useEffect(() => {
     checkAdminAccess();
-  }, [user]);
+  }, [user, authLoading, isProtetorAdmin]);
 
   useEffect(() => {
     if (isUserAdmin) {
@@ -47,8 +68,16 @@ const GerenciarCarrossel = () => {
     }
   }, [isUserAdmin]);
 
+  // cleanup object URL when modal closes
+  useEffect(() => {
+    if (!modalOpen && previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
+      setImageLoaded(false);
+    }
+  }, [modalOpen, previewUrl]);
+
   const checkAdminAccess = async () => {
-    // Wait for auth to load
     if (authLoading) return;
 
     if (!user) {
@@ -69,9 +98,9 @@ const GerenciarCarrossel = () => {
   const fetchSlides = async () => {
     setLoading(true);
     const { data, error } = await supabase
-      .from('carrossel_home')
-      .select('*')
-      .order('ordem', { ascending: true });
+      .from("carrossel_home")
+      .select("*")
+      .order("ordem", { ascending: true });
 
     if (!error && data) {
       setSlides(data);
@@ -83,32 +112,56 @@ const GerenciarCarrossel = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // create local preview immediately and mark as not loaded yet
+    const localUrl = URL.createObjectURL(file);
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
+    setPreviewUrl(localUrl);
+    setImageLoaded(false);
     setUploading(true);
 
-    const fileExt = file.name.split('.').pop();
-    const fileName = `carousel-${Date.now()}.${fileExt}`;
-    const filePath = `carousel/${fileName}`;
+    try {
+      const fileExt = file.name.split(".").pop();
+      const fileName = `carousel-${Date.now()}.${fileExt}`;
+      const filePath = `carousel/${fileName}`;
 
-    const { error: uploadError } = await supabase.storage
-      .from('cat-photos')
-      .upload(filePath, file);
+      const { error: uploadError } = await supabase.storage
+        .from("cat-photos")
+        .upload(filePath, file);
 
-    if (uploadError) {
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      // getPublicUrl returns an object; adapt to your supabase client shape
+      const { data } = supabase.storage
+        .from("cat-photos")
+        .getPublicUrl(filePath);
+
+      // prefer data.publicUrl or data.public_url depending on version
+      const publicUrl =
+        (data && ((data as any).publicUrl || (data as any).public_url)) || "";
+
+      setFormData((prev) => ({ ...prev, imagem_url: publicUrl || localUrl }));
+      // keep the spinner until the <img onLoad> sets imageLoaded = true
+      toast.success("Imagem adicionada!");
+    } catch (err) {
+      console.error(err);
       toast.error("Erro ao fazer upload da imagem");
+      // clean up preview if upload failed
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+        setPreviewUrl(null);
+      }
+      setFormData((prev) => ({ ...prev, imagem_url: "" }));
+    } finally {
       setUploading(false);
-      return;
     }
-
-    const { data: { publicUrl } } = supabase.storage
-      .from('cat-photos')
-      .getPublicUrl(filePath);
-
-    setFormData({ ...formData, imagem_url: publicUrl });
-    toast.success("Imagem adicionada!");
-    setUploading(false);
   };
 
   const openModal = (slide?: CarouselSlide) => {
+    setImageLoaded(false);
     if (slide) {
       setEditingSlide(slide);
       setFormData({
@@ -117,6 +170,8 @@ const GerenciarCarrossel = () => {
         ordem: slide.ordem,
         ativo: slide.ativo,
       });
+      // don't set previewUrl here; we'll show the remote url and wait for onLoad
+      setPreviewUrl(null);
     } else {
       setEditingSlide(null);
       setFormData({
@@ -125,6 +180,8 @@ const GerenciarCarrossel = () => {
         ordem: slides.length,
         ativo: true,
       });
+      setPreviewUrl(null);
+      setImageLoaded(false);
     }
     setModalOpen(true);
   };
@@ -138,6 +195,11 @@ const GerenciarCarrossel = () => {
       ordem: 0,
       ativo: true,
     });
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
+    }
+    setImageLoaded(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -151,15 +213,15 @@ const GerenciarCarrossel = () => {
     try {
       if (editingSlide) {
         const { error } = await supabase
-          .from('carrossel_home')
+          .from("carrossel_home")
           .update(formData)
-          .eq('id', editingSlide.id);
+          .eq("id", editingSlide.id);
 
         if (error) throw error;
         toast.success("Slide atualizado com sucesso!");
       } else {
         const { error } = await supabase
-          .from('carrossel_home')
+          .from("carrossel_home")
           .insert([formData]);
 
         if (error) throw error;
@@ -179,9 +241,9 @@ const GerenciarCarrossel = () => {
 
     try {
       const { error } = await supabase
-        .from('carrossel_home')
+        .from("carrossel_home")
         .delete()
-        .eq('id', id);
+        .eq("id", id);
 
       if (error) throw error;
 
@@ -195,18 +257,25 @@ const GerenciarCarrossel = () => {
 
   const toggleAtivo = async (slide: CarouselSlide) => {
     try {
-      const { error } = await supabase
-        .from('carrossel_home')
+      const { data, error, status } = await supabase
+        .from("carrossel_home")
         .update({ ativo: !slide.ativo })
-        .eq('id', slide.id);
+        .eq("id", slide.id)
+        .select(); // .select() will return the updated row(s) and sometimes surface RLS errors better
 
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase update error:", error, { status, data });
+        toast.error(`Erro ao atualizar status: ${error.message}`);
+        return;
+      }
 
-      toast.success(`Slide ${!slide.ativo ? 'ativado' : 'desativado'} com sucesso!`);
+      toast.success(
+        `Slide ${!slide.ativo ? "ativado" : "desativado"} com sucesso!`
+      );
       fetchSlides();
-    } catch (error) {
-      toast.error("Erro ao atualizar status");
-      console.error(error);
+    } catch (err) {
+      console.error("Unexpected toggle error:", err);
+      toast.error("Erro inesperado ao atualizar status");
     }
   };
 
@@ -245,17 +314,29 @@ const GerenciarCarrossel = () => {
                 <div
                   key={slide.id}
                   className={`bg-card rounded-xl p-4 flex gap-4 items-center ${
-                    !slide.ativo ? 'opacity-50' : ''
+                    !slide.ativo ? "opacity-50" : ""
                   }`}
                 >
                   <img
                     src={slide.imagem_url}
-                    alt={slide.descricao || "Slide"}
-                    className="w-32 h-24 object-cover rounded-lg"
+                    alt={slide.descricao ? slide.descricao : "Slide"}
+                    className="w-32 h-24 object-cover rounded-lg flex-shrink-0"
                   />
-                  <div className="flex-1">
-                    <p className="font-bold text-secondary">Ordem: {slide.ordem}</p>
-                    <p className="text-sm text-muted-foreground">
+                  {/* ensure text area can shrink and wrap instead of causing overflow */}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-secondary">
+                      Ordem: {slide.ordem}
+                    </p>
+
+                    {/* clamp description to 3 lines with ellipsis and allow wrapping */}
+                    <p
+                      className="text-sm text-muted-foreground break-words whitespace-normal overflow-hidden"
+                      style={{
+                        display: "-webkit-box",
+                        WebkitLineClamp: 3,
+                        WebkitBoxOrient: "vertical",
+                      }}
+                    >
                       {slide.descricao || "Sem descrição"}
                     </p>
                   </div>
@@ -294,7 +375,8 @@ const GerenciarCarrossel = () => {
                 <div className="text-center py-12">
                   <ImageIcon className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
                   <p className="text-secondary/70">
-                    Nenhum slide cadastrado. Clique em "Novo Slide" para adicionar.
+                    Nenhum slide cadastrado. Clique em "Novo Slide" para
+                    adicionar.
                   </p>
                 </div>
               )}
@@ -315,20 +397,62 @@ const GerenciarCarrossel = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <Label>Imagem</Label>
-              {formData.imagem_url ? (
+
+              {/* Image preview block */}
+              {formData.imagem_url || previewUrl ? (
                 <div className="relative mt-2">
                   <img
-                    src={formData.imagem_url}
-                    alt="Preview"
-                    className="w-full h-48 object-cover rounded-xl"
+                    // prefer previewUrl (local) while it's present, otherwise use formData.imagem_url
+                    src={previewUrl || formData.imagem_url}
+                    // while the image is not loaded avoid showing "Preview" text; keep alt descriptive for accessibility
+                    alt={imageLoaded ? formData.descricao || "Preview" : ""}
+                    className="w-full aspect-square object-cover rounded-xl"
+                    onLoad={() => setImageLoaded(true)}
+                    onError={() => setImageLoaded(true)} // avoid infinite spinner on broken images
+                    aria-busy={uploading || !imageLoaded}
                   />
+
+                  {/* overlay spinner while uploading OR while image hasn't finished loading */}
+                  {(uploading || !imageLoaded) && (
+                    <div
+                      className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-xl"
+                      aria-hidden="true"
+                    >
+                      <Loader2 className="w-12 h-12 animate-spin text-accent" />
+                    </div>
+                  )}
+
                   <button
                     type="button"
-                    onClick={() => setFormData({ ...formData, imagem_url: "" })}
+                    onClick={() => {
+                      // remove image and preview
+                      if (previewUrl) {
+                        URL.revokeObjectURL(previewUrl);
+                        setPreviewUrl(null);
+                      }
+                      setFormData({ ...formData, imagem_url: "" });
+                      setImageLoaded(false);
+                    }}
                     className="absolute -top-2 -right-2 bg-accent text-accent-foreground rounded-full p-1"
+                    title="Remover imagem"
                   >
                     <X className="w-4 h-4" />
                   </button>
+
+                  {/* small "Trocar" control positioned over image (disabled while uploading) */}
+                  <label className="absolute bottom-3 left-3 bg-muted/60 text-muted-foreground px-3 py-1 rounded-full cursor-pointer">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                      disabled={uploading}
+                    />
+                    <span className="flex items-center gap-2">
+                      <Upload className="w-4 h-4" />
+                      Trocar
+                    </span>
+                  </label>
                 </div>
               ) : (
                 <label className="mt-2 w-full h-48 border-2 border-dashed border-accent rounded-xl flex items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors">
@@ -344,7 +468,9 @@ const GerenciarCarrossel = () => {
                   ) : (
                     <div className="text-center">
                       <Upload className="w-12 h-12 text-accent mx-auto mb-2" />
-                      <p className="text-secondary/70">Clique para fazer upload</p>
+                      <p className="text-secondary/70">
+                        Clique para fazer upload
+                      </p>
                     </div>
                   )}
                 </label>
@@ -356,11 +482,31 @@ const GerenciarCarrossel = () => {
               <Textarea
                 id="descricao"
                 value={formData.descricao}
-                onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    descricao: e.target.value.slice(0, DESCRIPTION_MAX),
+                  })
+                }
                 className="rounded-xl"
                 rows={3}
                 placeholder="Descrição que aparecerá no slide"
+                maxLength={DESCRIPTION_MAX}
               />
+              <div className="flex justify-between mt-2 items-center">
+                <p className="text-xs text-muted-foreground">
+                  Use uma descrição curta para melhores resultados.
+                </p>
+                <p
+                  className={`text-xs ${
+                    formData.descricao.length >= DESCRIPTION_MAX
+                      ? "text-destructive"
+                      : "text-muted-foreground"
+                  }`}
+                >
+                  {formData.descricao.length}/{DESCRIPTION_MAX}
+                </p>
+              </div>
             </div>
 
             <div>
@@ -369,14 +515,23 @@ const GerenciarCarrossel = () => {
                 id="ordem"
                 type="number"
                 value={formData.ordem}
-                onChange={(e) => setFormData({ ...formData, ordem: parseInt(e.target.value) })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    ordem: parseInt(e.target.value || "0"),
+                  })
+                }
                 className="rounded-xl"
                 min={0}
               />
             </div>
 
             <div className="flex gap-4">
-              <Button type="submit" className="flex-1" disabled={uploading || !formData.imagem_url}>
+              <Button
+                type="submit"
+                className="flex-1"
+                disabled={uploading || !formData.imagem_url}
+              >
                 {editingSlide ? "💾 Atualizar" : "✨ Criar Slide"}
               </Button>
               <Button type="button" variant="secondary" onClick={closeModal}>

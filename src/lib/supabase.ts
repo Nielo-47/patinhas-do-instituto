@@ -2,10 +2,6 @@ import { supabase } from "@/integrations/supabase/client";
 
 export { supabase };
 
-// Helper types
-export type CatStatus = 'no_campus' | 'em_tratamento' | 'adotado' | 'falecido' | 'desconhecido';
-export type CatSex = 'macho' | 'femea' | 'desconhecido';
-
 // Auth helpers
 export const signIn = async (email: string, password: string) => {
   const { data, error } = await supabase.auth.signInWithPassword({
@@ -15,9 +11,14 @@ export const signIn = async (email: string, password: string) => {
   return { data, error };
 };
 
-export const signUp = async (email: string, password: string, nome: string, campus: string) => {
-  const redirectUrl = `${window.location.origin}/`;
-  
+export const signUp = async (
+  email: string,
+  password: string,
+  nome: string,
+  campus: string
+) => {
+  const redirectUrl = `${window.location.origin}/confirmar-email`;
+
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -39,29 +40,38 @@ export const signOut = async () => {
 
 // Storage helpers
 export const uploadCatPhoto = async (file: File, catId: string) => {
-  const fileExt = file.name.split('.').pop();
+  const fileExt = file.name.split(".").pop();
   const fileName = `${catId}/${Date.now()}.${fileExt}`;
-  
+
   const { data, error } = await supabase.storage
-    .from('cat-photos')
+    .from("cat-photos")
     .upload(fileName, file);
 
   if (error) return { data: null, error };
 
-  const { data: { publicUrl } } = supabase.storage
-    .from('cat-photos')
-    .getPublicUrl(fileName);
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from("cat-photos").getPublicUrl(fileName);
 
   return { data: publicUrl, error: null };
 };
 
 export const deleteCatPhoto = async (photoUrl: string) => {
-  const fileName = photoUrl.split('/cat-photos/')[1];
-  if (!fileName) return { error: new Error('Invalid photo URL') };
+  const fileName = photoUrl.split("/cat-photos/")[1];
+  if (!fileName) return { error: new Error("Invalid photo URL") };
 
   const { error } = await supabase.storage
-    .from('cat-photos')
+    .from("cat-photos")
     .remove([fileName]);
 
   return { error };
+};
+
+// Enviar email de redefinição de senha
+export const resetPassword = async (email: string) => {
+  const redirectUrl = `${window.location.origin}/`; // onde o usuário será redirecionado após redefinir
+  const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: redirectUrl,
+  });
+  return { data, error };
 };

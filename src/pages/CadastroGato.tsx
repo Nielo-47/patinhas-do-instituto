@@ -5,11 +5,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { supabase, uploadCatPhoto, CatStatus, CatSex } from "@/lib/supabase";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { supabase, uploadCatPhoto } from "@/lib/supabase";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2, Upload, X, Cat, Award, Star } from "lucide-react";
+import { CatSex, CatStatus } from "@/lib/models";
 
 const CadastroGato = () => {
   const { id } = useParams();
@@ -29,19 +36,33 @@ const CadastroGato = () => {
   const [caracteristicas, setCaracteristicas] = useState("");
   const [fotos, setFotos] = useState<string[]>([]);
 
+  // Novos campos
+  const [dataAdocaoFalecimento, setDataAdocaoFalecimento] = useState("");
+  const [mensagem, setMensagem] = useState("");
+
   useEffect(() => {
     if (isEditing) {
       fetchCat();
     }
   }, [isEditing, id]);
 
+  // Quando o status muda, se não for adotado/falecido não vamos obrigar nada,
+  // mas mantemos o valor caso o usuário mude de volta. (Opcional: limpar ao sair do estado)
+  // Exemplo de limpeza automática (descomente se preferir limpar):
+  // useEffect(() => {
+  //   if (status !== "adotado" && status !== "falecido") {
+  //     setDataAdocaoFalecimento("");
+  //     setMensagem("");
+  //   }
+  // }, [status]);
+
   const fetchCat = async () => {
     if (!id) return;
-    
+
     const { data, error } = await supabase
-      .from('gatos')
-      .select('*')
-      .eq('id', id)
+      .from("gatos")
+      .select("*")
+      .eq("id", id)
       .single();
 
     if (!error && data) {
@@ -54,6 +75,21 @@ const CadastroGato = () => {
       setLocalEncontrado(data.local_encontrado || "");
       setCaracteristicas(data.caracteristicas || "");
       setFotos(data.fotos || []);
+
+      // carregar os novos campos (podem ser null)
+      // data.data_adocao_falecimento pode vir como 'YYYY-MM-DD' ou iso; truncamos para date input
+      if (data.data_adocao_falecimento) {
+        // se vier com tempo, extrair a parte date
+        const dateStr =
+          typeof data.data_adocao_falecimento === "string"
+            ? data.data_adocao_falecimento.split("T")[0]
+            : null;
+        if (dateStr) setDataAdocaoFalecimento(dateStr);
+      } else {
+        setDataAdocaoFalecimento("");
+      }
+
+      setMensagem(data.mensagem || "");
     }
   };
 
@@ -68,7 +104,7 @@ const CadastroGato = () => {
     }
 
     setUploading(true);
-    const tempId = id || 'temp-' + Date.now();
+    const tempId = id || "temp-" + Date.now();
     const { data, error } = await uploadCatPhoto(file, tempId);
 
     if (error) {
@@ -91,10 +127,19 @@ const CadastroGato = () => {
       return;
     }
 
+    // Validação: se status for adotado ou falecido, a data é obrigatória
+    const requiresDate = status === "adotado" || status === "falecido";
+    if (requiresDate && !dataAdocaoFalecimento) {
+      toast.error(
+        "Por favor, preencha a data de adoção/falecimento para o status selecionado."
+      );
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const catData = {
+      const catData: any = {
         nome,
         sexo,
         status,
@@ -104,20 +149,22 @@ const CadastroGato = () => {
         local_encontrado: localEncontrado || null,
         caracteristicas: caracteristicas || null,
         fotos: fotos.length > 0 ? fotos : null,
+        // somente enviar data/mensagem quando aplicável; caso contrário, manter null
+        data_adocao_falecimento:
+          requiresDate && dataAdocaoFalecimento ? dataAdocaoFalecimento : null,
+        mensagem: mensagem ? mensagem : null,
       };
 
       if (isEditing) {
         const { error } = await supabase
-          .from('gatos')
+          .from("gatos")
           .update(catData)
-          .eq('id', id);
+          .eq("id", id);
 
         if (error) throw error;
         toast.success("Gato atualizado com sucesso!");
       } else {
-        const { error } = await supabase
-          .from('gatos')
-          .insert([catData]);
+        const { error } = await supabase.from("gatos").insert([catData]);
 
         if (error) throw error;
         toast.success("Gato cadastrado com sucesso!");
@@ -150,7 +197,8 @@ const CadastroGato = () => {
               {isEditing ? "✏️ Editar Gatinho" : "🎉 Cadastrar Novo Gatinho"}
             </h1>
             <p className="text-secondary/70">
-              Preencha as informações com carinho para manter nosso censo atualizado!
+              Preencha as informações com carinho para manter nosso censo
+              atualizado!
             </p>
           </div>
 
@@ -170,7 +218,11 @@ const CadastroGato = () => {
 
               <div>
                 <Label htmlFor="status">Status</Label>
-                <Select value={status} onValueChange={(value) => setStatus(value as CatStatus)} disabled={!isProtetor}>
+                <Select
+                  value={status}
+                  onValueChange={(value) => setStatus(value as CatStatus)}
+                  disabled={!isProtetor}
+                >
                   <SelectTrigger className="rounded-xl">
                     <SelectValue />
                   </SelectTrigger>
@@ -186,7 +238,11 @@ const CadastroGato = () => {
 
               <div>
                 <Label htmlFor="sexo">Sexo</Label>
-                <Select value={sexo} onValueChange={(value) => setSexo(value as CatSex)} disabled={!isProtetor}>
+                <Select
+                  value={sexo}
+                  onValueChange={(value) => setSexo(value as CatSex)}
+                  disabled={!isProtetor}
+                >
                   <SelectTrigger className="rounded-xl">
                     <SelectValue />
                   </SelectTrigger>
@@ -200,7 +256,11 @@ const CadastroGato = () => {
 
               <div>
                 <Label htmlFor="castrado">Castrado</Label>
-                <Select value={castrado} onValueChange={setCastrado} disabled={!isProtetor}>
+                <Select
+                  value={castrado}
+                  onValueChange={setCastrado}
+                  disabled={!isProtetor}
+                >
                   <SelectTrigger className="rounded-xl">
                     <SelectValue />
                   </SelectTrigger>
@@ -213,7 +273,11 @@ const CadastroGato = () => {
 
               <div>
                 <Label htmlFor="vacinado">Vacinado</Label>
-                <Select value={vacinado} onValueChange={setVacinado} disabled={!isProtetor}>
+                <Select
+                  value={vacinado}
+                  onValueChange={setVacinado}
+                  disabled={!isProtetor}
+                >
                   <SelectTrigger className="rounded-xl">
                     <SelectValue />
                   </SelectTrigger>
@@ -237,7 +301,9 @@ const CadastroGato = () => {
               </div>
 
               <div className="md:col-span-2">
-                <Label htmlFor="localEncontrado">Local onde costuma ser encontrado</Label>
+                <Label htmlFor="localEncontrado">
+                  Local onde costuma ser encontrado
+                </Label>
                 <Input
                   id="localEncontrado"
                   value={localEncontrado}
@@ -248,7 +314,9 @@ const CadastroGato = () => {
               </div>
 
               <div className="md:col-span-2">
-                <Label htmlFor="caracteristicas">Características marcantes</Label>
+                <Label htmlFor="caracteristicas">
+                  Características marcantes
+                </Label>
                 <Textarea
                   id="caracteristicas"
                   value={caracteristicas}
@@ -258,6 +326,43 @@ const CadastroGato = () => {
                   readOnly={!isProtetor}
                 />
               </div>
+
+              {/* Campos condicionais para adoção/falecimento */}
+              {(status === "adotado" || status === "falecido") && (
+                <>
+                  <div>
+                    <Label htmlFor="dataAdocaoFalecimento">
+                      Data de {status === "adotado" ? "adoção" : "falecimento"}{" "}
+                      <span className="text-accent">*</span>
+                    </Label>
+                    <Input
+                      id="dataAdocaoFalecimento"
+                      type="date"
+                      value={dataAdocaoFalecimento}
+                      onChange={(e) => setDataAdocaoFalecimento(e.target.value)}
+                      className="rounded-xl"
+                      // required no HTML (a gente valida no submit)
+                      disabled={!isProtetor}
+                    />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <Label htmlFor="mensagem">
+                      Mensagem{" "}
+                      {status === "falecido" ? "póstuma" : "comemorativa"}{" "}
+                      (opcional)
+                    </Label>
+                    <Textarea
+                      id="mensagem"
+                      value={mensagem}
+                      onChange={(e) => setMensagem(e.target.value)}
+                      className="rounded-xl"
+                      rows={3}
+                      readOnly={!isProtetor}
+                    />
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Photos */}
@@ -323,7 +428,9 @@ const CadastroGato = () => {
                   ) : (
                     <>
                       <Award className="w-5 h-5" />
-                      {isEditing ? "💾 Atualizar Informações" : "✨ Cadastrar Gatinho"}
+                      {isEditing
+                        ? "💾 Atualizar Informações"
+                        : "✨ Cadastrar Gatinho"}
                     </>
                   )}
                 </Button>
