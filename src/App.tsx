@@ -22,6 +22,7 @@ import PedidosAdocao from "./pages/PedidosAdocao";
 import NotFound from "./pages/NotFound";
 import Adotados from "./pages/Adotados";
 import ConfirmarEmail from "./pages/ConfirmarEmail";
+import RedefinirSenha from "./pages/RedefinirSenha";
 
 const queryClient = new QueryClient();
 
@@ -68,6 +69,7 @@ const App = () => (
             <Route path="/pedidos-adocao" element={<PedidosAdocao />} />
             <Route path="/adotados" element={<Adotados />} />
             <Route path="/confirmar-email" element={<ConfirmarEmail />} />
+            <Route path="/redefinir-senha" element={<RedefinirSenha />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

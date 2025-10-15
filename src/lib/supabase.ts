@@ -69,7 +69,7 @@ export const deleteCatPhoto = async (photoUrl: string) => {
 
 // Enviar email de redefinição de senha
 export const resetPassword = async (email: string) => {
-  const redirectUrl = `${window.location.origin}/`; // onde o usuário será redirecionado após redefinir
+  const redirectUrl = `${window.location.origin}/redefinir-senha`; // onde o usuário será redirecionado após redefinir
   const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: redirectUrl,
   });
