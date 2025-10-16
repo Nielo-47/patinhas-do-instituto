@@ -25,6 +25,7 @@ const EditarProtetor = () => {
   const { user, protetorId, loading: authLoading, isProtetorAdmin } = useAuth();
 
   const [loading, setLoading] = useState(false);
+  const [deleting, setDeleting] = useState(false); // novo estado de exclusão
   const [uploading, setUploading] = useState(false);
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
@@ -133,8 +134,6 @@ const EditarProtetor = () => {
         updatePayload.is_admin = isAdmin;
       }
 
-      console.warn(updatePayload);
-
       const { error } = await supabase
         .from("protetores")
         .update(updatePayload)
@@ -151,6 +150,58 @@ const EditarProtetor = () => {
       setLoading(false);
     }
   };
+
+  // NOVA FUNÇÃO: deletar protetor
+  const handleDelete = async () => {
+    if (!id) return;
+    if (!user) {
+      toast.error("Você precisa estar logado");
+      return;
+    }
+
+    // confirmação simples
+    const confirmed = window.confirm(
+      "Tem certeza de que deseja deletar este protetor? Esta ação é irreversível."
+    );
+    if (!confirmed) return;
+
+    setDeleting(true);
+
+    try {
+      const { error } = await supabase.from("protetores").delete().eq("id", id);
+
+      if (error) throw error;
+
+      toast.success("Protetor deletado com sucesso!");
+
+      // se o usuário deletou o próprio perfil, deslogue / redirecione para auth
+      if (protetorId === id) {
+        try {
+          await supabase.auth.signOut();
+        } catch (e) {
+          // ignore signout errors
+        }
+        navigate("/");
+        return;
+      }
+
+      navigate("/protetores");
+    } catch (error: any) {
+      console.error("Erro ao deletar protetor:", error);
+      // se for 403/forbidden provável problema de RLS/permissão
+      if (error?.status === 403 || error?.code === "42501") {
+        toast.error(
+          "Permissão negada ao tentar deletar. Apenas administradores ou o dono da conta podem deletar."
+        );
+      } else {
+        toast.error("Erro ao deletar protetor");
+      }
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const canDelete = isProtetorAdmin || protetorId === id;
 
   return (
     <div className="min-h-screen gradient-purple-dark">
@@ -281,7 +332,7 @@ const EditarProtetor = () => {
                 type="submit"
                 className="flex-1 gap-2"
                 size="lg"
-                disabled={loading}
+                disabled={loading || deleting}
               >
                 {loading ? (
                   <>
@@ -290,19 +341,43 @@ const EditarProtetor = () => {
                   </>
                 ) : (
                   <>
-                    <Award className="w-5 h-5" />
                     💾 Atualizar Perfil
                   </>
                 )}
               </Button>
+              {canDelete && (
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="lg"
+                  onClick={handleDelete}
+                  disabled={deleting || loading}
+                  className="flex items-center gap-2"
+                >
+                  {deleting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Deletando...
+                    </>
+                  ) : (
+                    <>
+                      <X className="w-4 h-4" />
+                      Deletar
+                    </>
+                  )}
+                </Button>
+              )}
               <Button
                 type="button"
                 variant="secondary"
                 size="lg"
                 onClick={() => navigate("/protetores")}
+                disabled={deleting || loading}
               >
                 Cancelar
               </Button>
+
+              {/* Botão de deletar — visível apenas para admins ou dono do perfil */}
             </div>
           </form>
         </div>

@@ -228,22 +228,36 @@ export type Database = {
         };
         Relationships: [];
       };
-      user_roles: {
+      censo_mensal: {
         Row: {
-          created_at: string | null;
           id: string;
-          role: Database["public"]["Enums"]["app_role"];
+          criado_em: string;
+          mes_ano: string; // YYYY-MM-01
+          total_gatos: number;
+          por_sexo: Record<string, number>;
+          por_status: Record<string, number>;
+          total_castrados: number;
+          total_vacinados: number;
         };
         Insert: {
-          created_at?: string | null;
-          id: string;
-          role?: Database["public"]["Enums"]["app_role"];
+          criado_em?: string | null;
+          mes_ano: string; // YYYY-MM-01
+          total_gatos?: number;
+          por_sexo?: Record<string, number>;
+          por_status?: Record<string, number>;
+          total_castrados?: number;
+          total_vacinados?: number;
         };
         Update: {
-          created_at?: string | null;
-          id: string;
-          role?: Database["public"]["Enums"]["app_role"];
+          criado_em?: string | null;
+          mes_ano?: string; // YYYY-MM-01
+          total_gatos?: number;
+          por_sexo?: Record<string, number>;
+          por_status?: Record<string, number>;
+          total_castrados?: number;
+          total_vacinados?: number;
         };
+
         Relationships: [];
       };
     };

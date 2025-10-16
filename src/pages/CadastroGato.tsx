@@ -427,7 +427,6 @@ const CadastroGato = () => {
                     </>
                   ) : (
                     <>
-                      <Award className="w-5 h-5" />
                       {isEditing
                         ? "💾 Atualizar Informações"
                         : "✨ Cadastrar Gatinho"}

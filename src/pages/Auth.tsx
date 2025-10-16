@@ -52,8 +52,25 @@ const Auth = () => {
         );
       } else {
         const validated = loginSchema.parse({ email, password });
-        const { error } = await signIn(validated.email, validated.password);
+        const { error, data } = await signIn(
+          validated.email,
+          validated.password
+        );
+
         if (error) {
+          // ⚠️ Novo tratamento: conta não confirmada
+          if (
+            error.message.includes("Email not confirmed") ||
+            error.message.includes("Email not confirmed") ||
+            error.message.toLowerCase().includes("confirm")
+          ) {
+            toast.warning(
+              "Seu e-mail ainda não foi confirmado. Verifique sua caixa de entrada e clique no link de confirmação antes de fazer login."
+            );
+            return;
+          }
+
+          // Tratamento existente
           if (error.message.includes("Invalid login credentials")) {
             toast.error("Email ou senha incorretos");
           } else {
@@ -61,6 +78,8 @@ const Auth = () => {
           }
           return;
         }
+
+        // Se o login foi bem-sucedido
         toast.success("Bem-vindo de volta!");
         navigate("/censo");
       }

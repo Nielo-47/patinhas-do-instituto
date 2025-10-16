@@ -69,8 +69,6 @@ const CadastroProtetor = () => {
         },
       });
 
-      console.error(authData, authError);
-
       if (authError) throw authError;
 
       if (authData.user) {
