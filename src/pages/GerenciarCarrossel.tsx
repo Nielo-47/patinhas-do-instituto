@@ -26,7 +26,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { randomUUID } from "crypto";
 
 interface CarouselSlide {
   id?: string;
@@ -257,26 +256,33 @@ const GerenciarCarrossel = () => {
   };
 
   const toggleAtivo = async (slide: CarouselSlide) => {
+    if (!slide.id) return;
+
     try {
-      const { data, error, status } = await supabase
+      // Atualiza apenas o campo ativo, admin necessário
+      const { data, error } = await supabase
         .from("carrossel_home")
         .update({ ativo: !slide.ativo })
         .eq("id", slide.id)
-        .select(); // .select() will return the updated row(s) and sometimes surface RLS errors better
+        .select(); // retorna a linha atualizada
 
       if (error) {
-        console.error("Supabase update error:", error, { status, data });
-        toast.error(`Erro ao atualizar status: ${error.message}`);
+        console.error("Erro ao atualizar slide:", error);
+        toast.error(`Não foi possível atualizar o slide: ${error.message}`);
         return;
       }
+
+      // Atualiza localmente a lista de slides sem refetch completo
+      setSlides((prev) =>
+        prev.map((s) => (s.id === slide.id ? { ...s, ativo: !slide.ativo } : s))
+      );
 
       toast.success(
         `Slide ${!slide.ativo ? "ativado" : "desativado"} com sucesso!`
       );
-      fetchSlides();
     } catch (err) {
-      console.error("Unexpected toggle error:", err);
-      toast.error("Erro inesperado ao atualizar status");
+      console.error("Erro inesperado ao atualizar slide:", err);
+      toast.error("Erro inesperado ao atualizar slide");
     }
   };
 
@@ -401,13 +407,13 @@ const GerenciarCarrossel = () => {
 
               {/* Image preview block */}
               {formData.imagem_url || previewUrl ? (
-                <div className="relative mt-2">
+                <div className="flex relative mt-2 justify-center">
                   <img
                     // prefer previewUrl (local) while it's present, otherwise use formData.imagem_url
                     src={previewUrl || formData.imagem_url}
                     // while the image is not loaded avoid showing "Preview" text; keep alt descriptive for accessibility
                     alt={imageLoaded ? formData.descricao || "Preview" : ""}
-                    className="w-full aspect-square object-cover rounded-xl"
+                    className="w-full max-w-[400px] aspect-square object-cover rounded-xl"
                     onLoad={() => setImageLoaded(true)}
                     onError={() => setImageLoaded(true)} // avoid infinite spinner on broken images
                     aria-busy={uploading || !imageLoaded}
