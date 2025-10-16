@@ -233,7 +233,7 @@ const Graficos = () => {
             <h2 className="text-2xl font-bold text-primary text-center mb-4">
               Sexo
             </h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col lg:flex-row gap-4">
               <ResponsiveContainer width="100%" height={250}>
                 <PieChart>
                   <Pie
@@ -301,7 +301,7 @@ const Graficos = () => {
             <h2 className="text-2xl font-bold text-primary text-center mb-4">
               Status
             </h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col lg:flex-row gap-4">
               <ResponsiveContainer width="100%" height={250}>
                 <PieChart>
                   <Pie
@@ -376,7 +376,7 @@ const Graficos = () => {
             <h2 className="text-2xl font-bold text-primary text-center mb-4">
               Castrados
             </h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col lg:flex-row gap-4">
               <ResponsiveContainer width="100%" height={250}>
                 <PieChart>
                   <Pie
@@ -437,7 +437,7 @@ const Graficos = () => {
             <h2 className="text-2xl font-bold text-primary text-center mb-4">
               Vacinados
             </h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col lg:flex-row gap-4">
               <ResponsiveContainer width="100%" height={250}>
                 <PieChart>
                   <Pie

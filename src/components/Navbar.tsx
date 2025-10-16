@@ -232,6 +232,19 @@ export const Navbar = () => {
                   </Button>
                 </Link>
               )}
+              <Link to="/adotados">
+                <Button
+                  variant={isActive("/adotados") ? "secondary" : "ghost"}
+                  size="sm"
+                  className={
+                    isActive("/adotados")
+                      ? ""
+                      : "w-full justify-start"
+                  }
+                >
+                  Adotados
+                </Button>
+              </Link>
 
               <Link to="/memorial" onClick={closeMobileMenu}>
                 <Button
