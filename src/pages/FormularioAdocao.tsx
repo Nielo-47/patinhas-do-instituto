@@ -30,7 +30,7 @@ export default function FormularioAdocao() {
         .select("*")
         .eq("id", id)
         .single();
-      
+
       if (error) throw error;
       return data;
     },
@@ -38,7 +38,7 @@ export default function FormularioAdocao() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.termo_aceito) {
       toast({
         title: "Termo não aceito",
@@ -55,7 +55,7 @@ export default function FormularioAdocao() {
       const { error: insertError } = await supabase
         .from("pedidos_adocao")
         .insert({
-          gato_id: id,
+          id: id,
           nome_candidato: formData.nome_candidato,
           contato_candidato: formData.contato_candidato,
           termo_compromisso_aceito: formData.termo_aceito,
@@ -66,7 +66,7 @@ export default function FormularioAdocao() {
       // Enviar email de notificação
       await supabase.functions.invoke("notificar-adocao", {
         body: {
-          gato_id: id,
+          id: id,
           nome_gato: gato?.nome || "Gato",
           nome_candidato: formData.nome_candidato,
           contato_candidato: formData.contato_candidato,
@@ -94,13 +94,9 @@ export default function FormularioAdocao() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Navbar />
-      
+
       <main className="flex-1 container mx-auto px-4 py-8">
-        <Button
-          variant="ghost"
-          onClick={() => navigate(-1)}
-          className="mb-6"
-        >
+        <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Voltar
         </Button>
@@ -138,7 +134,10 @@ export default function FormularioAdocao() {
                 required
                 value={formData.contato_candidato}
                 onChange={(e) =>
-                  setFormData({ ...formData, contato_candidato: e.target.value })
+                  setFormData({
+                    ...formData,
+                    contato_candidato: e.target.value,
+                  })
                 }
                 className="mt-1"
               />
@@ -150,9 +149,18 @@ export default function FormularioAdocao() {
               </h3>
               <p className="text-sm mb-2">Ao adotar, eu me comprometo a:</p>
               <ul className="text-sm space-y-2 list-disc list-inside">
-                <li>Prover um ambiente seguro, com telas de proteção em janelas e varandas.</li>
-                <li>Garantir alimentação de qualidade, água fresca e cuidados veterinários sempre que necessário.</li>
-                <li>Não abandonar o animal em nenhuma circunstância, tratando-o como um membro da família por toda a sua vida.</li>
+                <li>
+                  Prover um ambiente seguro, com telas de proteção em janelas e
+                  varandas.
+                </li>
+                <li>
+                  Garantir alimentação de qualidade, água fresca e cuidados
+                  veterinários sempre que necessário.
+                </li>
+                <li>
+                  Não abandonar o animal em nenhuma circunstância, tratando-o
+                  como um membro da família por toda a sua vida.
+                </li>
                 <li>Manter as vacinas e a vermifugação em dia.</li>
               </ul>
             </div>
@@ -169,7 +177,8 @@ export default function FormularioAdocao() {
                 htmlFor="termo"
                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
-                Li e aceito os termos de compromisso e responsabilidade com o animal. *
+                Li e aceito os termos de compromisso e responsabilidade com o
+                animal. *
               </label>
             </div>
 

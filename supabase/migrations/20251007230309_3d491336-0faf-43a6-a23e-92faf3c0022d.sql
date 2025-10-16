@@ -5,7 +5,7 @@ CREATE TYPE public.cat_sex AS ENUM ('macho', 'femea', 'desconhecido');
 -- Create protetores (caretakers) table
 CREATE TABLE public.protetores (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
+  id UUID NOT NULL UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
   nome TEXT NOT NULL,
   campus TEXT NOT NULL,
   email TEXT NOT NULL,
@@ -47,12 +47,12 @@ CREATE POLICY "Protetores are viewable by everyone"
 -- Only authenticated users can insert their own profile
 CREATE POLICY "Users can insert their own protetor profile"
   ON public.protetores FOR INSERT
-  WITH CHECK (auth.uid() = user_id);
+  WITH CHECK (auth.uid() = id);
 
 -- Only authenticated users can update their own profile
 CREATE POLICY "Users can update their own protetor profile"
   ON public.protetores FOR UPDATE
-  USING (auth.uid() = user_id);
+  USING (auth.uid() = id);
 
 -- Policies for gatos table
 -- Everyone can view cats
@@ -110,7 +110,7 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
-  INSERT INTO public.protetores (user_id, nome, email, campus)
+  INSERT INTO public.protetores (id, nome, email, campus)
   VALUES (
     NEW.id,
     COALESCE(NEW.raw_user_meta_data->>'nome', 'Novo Protetor'),

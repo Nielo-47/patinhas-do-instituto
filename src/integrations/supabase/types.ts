@@ -19,7 +19,7 @@ export type Database = {
           ativo: boolean;
           created_at: string;
           descricao: string | null;
-          id: number;
+          id: string;
           imagem_url: string;
           ordem: number;
           updated_at: string;
@@ -28,7 +28,6 @@ export type Database = {
           ativo?: boolean;
           created_at?: string;
           descricao?: string | null;
-          id?: number;
           imagem_url: string;
           ordem?: number;
           updated_at?: string;
@@ -37,7 +36,6 @@ export type Database = {
           ativo?: boolean;
           created_at?: string;
           descricao?: string | null;
-          id?: number;
           imagem_url?: string;
           ordem?: number;
           updated_at?: string;
@@ -68,10 +66,10 @@ export type Database = {
           created_at?: string;
           data_ultima_vacinacao?: string | null;
           fotos?: string[] | null;
-          id?: string;
+          id: string;
           local_encontrado?: string | null;
           nome: string;
-          protetor_id?: string | null;
+          protetor_id: string | null;
           sexo?: Database["public"]["Enums"]["cat_sex"];
           status?: Database["public"]["Enums"]["cat_status"];
           updated_at?: string;
@@ -85,10 +83,10 @@ export type Database = {
           created_at?: string;
           data_ultima_vacinacao?: string | null;
           fotos?: string[] | null;
-          id?: string;
+          id: string;
           local_encontrado?: string | null;
           nome?: string;
-          protetor_id?: string | null;
+          protetor_id: string | null;
           sexo?: Database["public"]["Enums"]["cat_sex"];
           status?: Database["public"]["Enums"]["cat_status"];
           updated_at?: string;
@@ -111,7 +109,7 @@ export type Database = {
           contato_candidato: string;
           created_at: string;
           data_pedido: string;
-          gato_id: string;
+
           id: string;
           nome_candidato: string;
           status: string;
@@ -121,8 +119,8 @@ export type Database = {
           contato_candidato: string;
           created_at?: string;
           data_pedido?: string;
-          gato_id: string;
-          id?: string;
+
+          id: string;
           nome_candidato: string;
           status?: string;
           termo_compromisso_aceito?: boolean;
@@ -131,16 +129,16 @@ export type Database = {
           contato_candidato?: string;
           created_at?: string;
           data_pedido?: string;
-          gato_id?: string;
-          id?: string;
+
+          id: string;
           nome_candidato?: string;
           status?: string;
           termo_compromisso_aceito?: boolean;
         };
         Relationships: [
           {
-            foreignKeyName: "pedidos_adocao_gato_id_fkey";
-            columns: ["gato_id"];
+            foreignKeyName: "pedidos_adocao_id_fkey";
+            columns: ["id"];
             isOneToOne: false;
             referencedRelation: "gatos";
             referencedColumns: ["id"];
@@ -162,7 +160,7 @@ export type Database = {
           data_referencia: string;
           gatos_cadastrados_mes?: number;
           gatos_editados_mes?: number;
-          id?: number;
+          id: number;
           novos_protetores_cadastrados_mes?: number;
           protetor_id: string;
         };
@@ -171,9 +169,9 @@ export type Database = {
           data_referencia?: string;
           gatos_cadastrados_mes?: number;
           gatos_editados_mes?: number;
-          id?: number;
+          id: number;
           novos_protetores_cadastrados_mes?: number;
-          protetor_id?: string;
+          protetor_id: string;
         };
         Relationships: [
           {
@@ -199,7 +197,6 @@ export type Database = {
           is_admin: boolean;
           nome: string;
           updated_at: string;
-          user_id: string;
         };
         Insert: {
           campus: string;
@@ -210,11 +207,10 @@ export type Database = {
           foto_url?: string | null;
           gatos_cadastrados?: number;
           gatos_editados?: number;
-          id?: string;
+          id: string;
           is_admin?: boolean;
           nome: string;
           updated_at?: string;
-          user_id: string;
         };
         Update: {
           campus?: string;
@@ -225,11 +221,10 @@ export type Database = {
           foto_url?: string | null;
           gatos_cadastrados?: number;
           gatos_editados?: number;
-          id?: string;
+          id: string;
           is_admin?: boolean;
           nome?: string;
           updated_at?: string;
-          user_id?: string;
         };
         Relationships: [];
       };
@@ -238,19 +233,16 @@ export type Database = {
           created_at: string | null;
           id: string;
           role: Database["public"]["Enums"]["app_role"];
-          user_id: string;
         };
         Insert: {
           created_at?: string | null;
-          id?: string;
+          id: string;
           role?: Database["public"]["Enums"]["app_role"];
-          user_id: string;
         };
         Update: {
           created_at?: string | null;
-          id?: string;
+          id: string;
           role?: Database["public"]["Enums"]["app_role"];
-          user_id?: string;
         };
         Relationships: [];
       };
@@ -262,7 +254,7 @@ export type Database = {
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"];
-          _user_id: string;
+          _;
         };
         Returns: boolean;
       };

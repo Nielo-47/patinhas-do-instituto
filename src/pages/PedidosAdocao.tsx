@@ -104,7 +104,7 @@ export default function PedidosAdocao() {
     }) => {
       const { error } = await supabase
         .from("pedidos_adocao")
-        .update({ status: novoStatus })
+        .update({ id: pedidoId, status: novoStatus })
         .eq("id", pedidoId);
       if (error) throw error;
     },
@@ -133,6 +133,8 @@ export default function PedidosAdocao() {
       const { error: gatoError } = await supabase
         .from("gatos")
         .update({
+          id: pedido.gatos!.id,
+          protetor_id: (pedido.gatos as any).protetor_id, // ajuste conforme necessário para obter o protetor_id
           status: "adotado",
           data_adocao_falecimento: new Date().toISOString(),
           mensagem: mensagem, // Adiciona a mensagem comemorativa
@@ -145,7 +147,7 @@ export default function PedidosAdocao() {
       // 2. Atualizar status do pedido
       const { error: pedidoError } = await supabase
         .from("pedidos_adocao")
-        .update({ status: "Aprovado" })
+        .update({ id: pedido.id, status: "Aprovado" })
         .eq("id", pedido.id);
 
       if (pedidoError)
@@ -258,7 +260,7 @@ export default function PedidosAdocao() {
       // 2) atualizar o pedido com o status desejado
       await supabase
         .from("pedidos_adocao")
-        .update({ status: novoPedidoStatus })
+        .update({ id: pedido.id, status: novoPedidoStatus })
         .eq("id", pedido.id);
 
       // sucesso

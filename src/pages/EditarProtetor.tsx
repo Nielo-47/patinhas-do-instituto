@@ -8,7 +8,16 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
-import { Loader2, Upload, X, UserCircle, Award, Star } from "lucide-react";
+import {
+  Loader2,
+  Upload,
+  X,
+  UserCircle,
+  Award,
+  Star,
+  Shield,
+} from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const EditarProtetor = () => {
   const { id } = useParams();
@@ -22,10 +31,12 @@ const EditarProtetor = () => {
   const [campus, setCampus] = useState("");
   const [formaContato, setFormaContato] = useState("");
   const [fotoUrl, setFotoUrl] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false); // novo estado
 
   useEffect(() => {
     checkAccess();
     fetchProtetor();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const checkAccess = async () => {
@@ -59,6 +70,10 @@ const EditarProtetor = () => {
       setCampus(data.campus);
       setFormaContato(data.forma_de_contato || "");
       setFotoUrl(data.foto_url);
+      setIsAdmin(!!data.is_admin);
+    } else if (error) {
+      console.error("Erro ao buscar protetor:", error);
+      toast.error("Erro ao carregar dados do protetor");
     }
   };
 
@@ -70,11 +85,10 @@ const EditarProtetor = () => {
 
     const fileExt = file.name.split(".").pop();
     const fileName = `${id}-${Date.now()}.${fileExt}`;
-    const filePath = `protetor-photos/${fileName}`;
 
     const { error: uploadError } = await supabase.storage
-      .from("cat-photos")
-      .upload(filePath, file);
+      .from("protetor-photos")
+      .upload(fileName, file);
 
     if (uploadError) {
       toast.error("Erro ao fazer upload da foto");
@@ -84,7 +98,7 @@ const EditarProtetor = () => {
 
     const {
       data: { publicUrl },
-    } = supabase.storage.from("cat-photos").getPublicUrl(filePath);
+    } = supabase.storage.from("protetor-photos").getPublicUrl(fileName);
 
     setFotoUrl(publicUrl);
     toast.success("Foto adicionada!");
@@ -106,15 +120,24 @@ const EditarProtetor = () => {
     setLoading(true);
 
     try {
+      const updatePayload: any = {
+        nome,
+        email,
+        campus,
+        forma_de_contato: formaContato || null,
+        foto_url: fotoUrl,
+      };
+
+      // só inclua is_admin se o usuário atual for admin (para evitar autoset por usuários comuns)
+      if (isProtetorAdmin) {
+        updatePayload.is_admin = isAdmin;
+      }
+
+      console.warn(updatePayload);
+
       const { error } = await supabase
         .from("protetores")
-        .update({
-          nome,
-          email,
-          campus,
-          forma_de_contato: formaContato || null,
-          foto_url: fotoUrl,
-        })
+        .update(updatePayload)
         .eq("id", id);
 
       if (error) throw error;
@@ -232,6 +255,26 @@ const EditarProtetor = () => {
                 />
               </div>
             </div>
+
+            {/* Novo campo: conceder privilégios de administrador (visível apenas para admins) */}
+            {isProtetorAdmin && (
+              <div className="flex items-center space-x-2 bg-card rounded-xl p-4">
+                <Checkbox
+                  id="isAdmin"
+                  checked={isAdmin}
+                  onCheckedChange={(checked) => setIsAdmin(checked as boolean)}
+                />
+                <label
+                  htmlFor="isAdmin"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-2 cursor-pointer"
+                >
+                  <Shield className="w-4 h-4 text-accent" />
+                  <span className="text-secondary">
+                    Conceder privilégios de administrador
+                  </span>
+                </label>
+              </div>
+            )}
 
             <div className="flex gap-4">
               <Button

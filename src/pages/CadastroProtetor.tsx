@@ -69,18 +69,22 @@ const CadastroProtetor = () => {
         },
       });
 
+      console.error(authData, authError);
+
       if (authError) throw authError;
 
       if (authData.user) {
-        // Atualizar o status de admin se necessário
-        if (isAdmin) {
-          const { error: updateError } = await supabase
-            .from('protetores')
-            .update({ is_admin: true })
-            .eq('user_id', authData.user.id);
+        const { error: insertError } = await supabase
+          .from("protetores")
+          .insert({
+            id: authData.user.id,
+            nome,
+            email,
+            campus,
+            is_admin: isAdmin,
+          });
 
-          if (updateError) throw updateError;
-        }
+        if (insertError) throw insertError;
 
         toast.success("Protetor cadastrado com sucesso!");
         navigate("/protetores");
@@ -203,8 +207,7 @@ const CadastroProtetor = () => {
                   </>
                 ) : (
                   <>
-                    <Award className="w-5 h-5" />
-                    ✨ Cadastrar Protetor
+                    <Award className="w-5 h-5" />✨ Cadastrar Protetor
                   </>
                 )}
               </Button>

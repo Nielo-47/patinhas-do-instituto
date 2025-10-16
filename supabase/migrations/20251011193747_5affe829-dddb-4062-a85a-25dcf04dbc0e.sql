@@ -29,7 +29,7 @@ FOR INSERT
 WITH CHECK (
   EXISTS (
     SELECT 1 FROM public.protetores
-    WHERE user_id = auth.uid() AND is_admin = true
+    WHERE id = auth.uid() AND is_admin = true
   )
 );
 
@@ -40,7 +40,7 @@ FOR UPDATE
 USING (
   EXISTS (
     SELECT 1 FROM public.protetores
-    WHERE user_id = auth.uid() AND is_admin = true
+    WHERE id = auth.uid() AND is_admin = true
   )
 );
 
@@ -51,7 +51,7 @@ FOR DELETE
 USING (
   EXISTS (
     SELECT 1 FROM public.protetores
-    WHERE user_id = auth.uid() AND is_admin = true
+    WHERE id = auth.uid() AND is_admin = true
   )
 );
 

@@ -22,7 +22,7 @@ CREATE POLICY "Histórico de atividade é visível por todos"
 CREATE POLICY "Apenas o protetor pode inserir seu histórico"
   ON public.protetor_atividade_historico
   FOR INSERT
-  WITH CHECK (auth.uid() IN (SELECT user_id FROM public.protetores WHERE id = protetor_id));
+  WITH CHECK (auth.uid() IN (SELECT id FROM public.protetores WHERE id = protetor_id));
 
 -- Create index for better performance
 CREATE INDEX idx_protetor_atividade_data ON public.protetor_atividade_historico(protetor_id, data_referencia DESC);

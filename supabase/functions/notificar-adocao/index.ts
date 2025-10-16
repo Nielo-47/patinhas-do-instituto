@@ -9,7 +9,7 @@ const corsHeaders = {
 };
 
 interface AdocaoRequest {
-  gato_id: string;
+  id: string;
   nome_gato: string;
   nome_candidato: string;
   contato_candidato: string;
@@ -21,7 +21,8 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { nome_gato, nome_candidato, contato_candidato }: AdocaoRequest = await req.json();
+    const { nome_gato, nome_candidato, contato_candidato }: AdocaoRequest =
+      await req.json();
 
     const emailResponse = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -55,13 +56,10 @@ const handler = async (req: Request): Promise<Response> => {
     });
   } catch (error: any) {
     console.error("Erro ao enviar email:", error);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      }
-    );
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { "Content-Type": "application/json", ...corsHeaders },
+    });
   }
 };
 

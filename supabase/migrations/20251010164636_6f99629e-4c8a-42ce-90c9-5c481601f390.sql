@@ -4,17 +4,17 @@ CREATE TYPE public.app_role AS ENUM ('admin', 'user');
 -- Criar tabela de roles
 CREATE TABLE public.user_roles (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
   role app_role NOT NULL DEFAULT 'user',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
-  UNIQUE (user_id, role)
+  UNIQUE (id, role)
 );
 
 -- Habilitar RLS na tabela user_roles
 ALTER TABLE public.user_roles ENABLE ROW LEVEL SECURITY;
 
 -- Função de segurança para verificar roles
-CREATE OR REPLACE FUNCTION public.has_role(_user_id UUID, _role app_role)
+CREATE OR REPLACE FUNCTION public.has_role(_id UUID, _role app_role)
 RETURNS BOOLEAN
 LANGUAGE SQL
 STABLE
@@ -24,7 +24,7 @@ AS $$
   SELECT EXISTS (
     SELECT 1
     FROM public.user_roles
-    WHERE user_id = _user_id
+    WHERE id = _id
       AND role = _role
   )
 $$;
@@ -38,7 +38,7 @@ USING (true);
 CREATE POLICY "Users can insert their own role"
 ON public.user_roles
 FOR INSERT
-WITH CHECK (auth.uid() = user_id);
+WITH CHECK (auth.uid() = id);
 
 -- Adicionar campo forma_de_contato à tabela protetores
 ALTER TABLE public.protetores

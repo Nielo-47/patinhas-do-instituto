@@ -26,9 +26,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { randomUUID } from "crypto";
 
 interface CarouselSlide {
-  id: number;
+  id?: string;
   imagem_url: string;
   descricao: string | null;
   ordem: number;
@@ -236,7 +237,7 @@ const GerenciarCarrossel = () => {
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (!confirm("Tem certeza que deseja deletar este slide?")) return;
 
     try {
