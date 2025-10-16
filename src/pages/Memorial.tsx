@@ -2,13 +2,16 @@ import { useState, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { supabase } from "@/lib/supabase";
-import { Loader2 } from "lucide-react";
+import { Loader2, Pencil } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 interface Cat {
   id: string;
@@ -21,6 +24,8 @@ const Memorial = () => {
   const [cats, setCats] = useState<Cat[]>([]);
   const [selectedCat, setSelectedCat] = useState<Cat | null>(null);
   const [loading, setLoading] = useState(true);
+  const { isProtetor } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchDeceasedCats();
@@ -38,6 +43,11 @@ const Memorial = () => {
       setCats(data);
     }
     setLoading(false);
+  };
+
+  const handleEdit = () => {
+    navigate(`/editar-gato/${selectedCat.id}`);
+    setSelectedCat(null);
   };
 
   return (
@@ -230,6 +240,15 @@ const Memorial = () => {
                     {new Date(selectedCat.created_at).getFullYear()}
                   </p>
                 </div>
+                {isProtetor && (
+                  <Button
+                    onClick={handleEdit}
+                    className="w-full bg-secondary hover:bg-secondary/90 text-white font-bold text-lg"
+                  >
+                    <Pencil className="mr-2 h-5 w-5" />
+                    Editar
+                  </Button>
+                )}
               </div>
             </>
           )}

@@ -12,19 +12,31 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { supabase, uploadCatPhoto } from "@/lib/supabase";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
-import { Loader2, Upload, X, Cat, Award, Star } from "lucide-react";
+import { Loader2, Upload, X, Cat, Award, Star, Trash2 } from "lucide-react";
 import { CatSex, CatStatus } from "@/lib/models";
 
 const CadastroGato = () => {
   const { id } = useParams();
   const isEditing = !!id;
   const navigate = useNavigate();
-  const { user, isProtetor } = useAuth();
+  const { user, isProtetor, isProtetorAdmin } = useAuth();
 
   const [loading, setLoading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [nome, setNome] = useState("");
   const [sexo, setSexo] = useState<CatSex>("desconhecido");
@@ -46,16 +58,6 @@ const CadastroGato = () => {
     }
   }, [isEditing, id]);
 
-  // Quando o status muda, se não for adotado/falecido não vamos obrigar nada,
-  // mas mantemos o valor caso o usuário mude de volta. (Opcional: limpar ao sair do estado)
-  // Exemplo de limpeza automática (descomente se preferir limpar):
-  // useEffect(() => {
-  //   if (status !== "adotado" && status !== "falecido") {
-  //     setDataAdocaoFalecimento("");
-  //     setMensagem("");
-  //   }
-  // }, [status]);
-
   const fetchCat = async () => {
     if (!id) return;
 
@@ -76,10 +78,7 @@ const CadastroGato = () => {
       setCaracteristicas(data.caracteristicas || "");
       setFotos(data.fotos || []);
 
-      // carregar os novos campos (podem ser null)
-      // data.data_adocao_falecimento pode vir como 'YYYY-MM-DD' ou iso; truncamos para date input
       if (data.data_adocao_falecimento) {
-        // se vier com tempo, extrair a parte date
         const dateStr =
           typeof data.data_adocao_falecimento === "string"
             ? data.data_adocao_falecimento.split("T")[0]
@@ -97,7 +96,6 @@ const CadastroGato = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validar limite de 5 fotos
     if (fotos.length >= 5) {
       toast.error("Limite de 5 fotos por gato atingido");
       return;
@@ -120,6 +118,29 @@ const CadastroGato = () => {
     setFotos(fotos.filter((_, i) => i !== index));
   };
 
+  const handleDelete = async () => {
+    if (!id || !isProtetorAdmin) return;
+
+    setDeleting(true);
+
+    try {
+      const { error } = await supabase
+        .from("gatos")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+      
+      toast.success("Gato excluído com sucesso!");
+      navigate("/censo");
+    } catch (error) {
+      toast.error("Erro ao excluir gato");
+      console.error(error);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !isProtetor) {
@@ -127,7 +148,6 @@ const CadastroGato = () => {
       return;
     }
 
-    // Validação: se status for adotado ou falecido, a data é obrigatória
     const requiresDate = status === "adotado" || status === "falecido";
     if (requiresDate && !dataAdocaoFalecimento) {
       toast.error(
@@ -149,7 +169,6 @@ const CadastroGato = () => {
         local_encontrado: localEncontrado || null,
         caracteristicas: caracteristicas || null,
         fotos: fotos.length > 0 ? fotos : null,
-        // somente enviar data/mensagem quando aplicável; caso contrário, manter null
         data_adocao_falecimento:
           requiresDate && dataAdocaoFalecimento ? dataAdocaoFalecimento : null,
         mensagem: mensagem ? mensagem : null,
@@ -327,7 +346,6 @@ const CadastroGato = () => {
                 />
               </div>
 
-              {/* Campos condicionais para adoção/falecimento */}
               {(status === "adotado" || status === "falecido") && (
                 <>
                   <div>
@@ -341,7 +359,6 @@ const CadastroGato = () => {
                       value={dataAdocaoFalecimento}
                       onChange={(e) => setDataAdocaoFalecimento(e.target.value)}
                       className="rounded-xl"
-                      // required no HTML (a gente valida no submit)
                       disabled={!isProtetor}
                     />
                   </div>
@@ -434,6 +451,7 @@ const CadastroGato = () => {
                   )}
                 </Button>
               )}
+              
               <Button
                 type="button"
                 variant="secondary"
@@ -443,6 +461,51 @@ const CadastroGato = () => {
               >
                 {isProtetor ? "Cancelar" : "Voltar"}
               </Button>
+
+              {/* Botão de Excluir - Apenas Admin e apenas em modo edição */}
+              {isEditing && isProtetorAdmin && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="lg"
+                      disabled={deleting}
+                    >
+                      {deleting ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                          Excluindo...
+                        </>
+                      ) : (
+                        <>
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Excluir
+                        </>
+                      )}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Tem certeza que deseja excluir o gato <strong>{nome}</strong>? 
+                        Esta ação não pode ser desfeita e todos os dados serão 
+                        permanentemente removidos do sistema.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={handleDelete}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >
+                        Sim, excluir
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
             </div>
           </form>
         </div>
