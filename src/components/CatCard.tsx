@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Cat as CatIcon, Scissors, Syringe } from "lucide-react";
 
 interface CatCardProps {
@@ -16,6 +17,11 @@ export const CatCard = ({
   vacinado,
   onClick,
 }: CatCardProps) => {
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  const showPlaceholder = !foto || imageError || !imageLoaded;
+
   return (
     <>
       {/* Desktop Card View - hidden on mobile */}
@@ -23,13 +29,25 @@ export const CatCard = ({
         onClick={onClick}
         className="hidden sm:block bg-primary rounded-3xl border-4 border-accent p-4 cursor-pointer hover:scale-110 hover:-rotate-1 transition-all duration-300 shadow-card hover:shadow-vibrant group"
       >
-        <div className="aspect-square rounded-2xl overflow-hidden bg-card mb-3">
-          {foto ? (
-            <img src={foto} alt={nome} className="w-full h-full object-cover" />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-muted">
-              <CatIcon className="w-16 h-16 text-muted-foreground" />
+        <div className="aspect-square rounded-2xl overflow-hidden bg-card mb-3 relative">
+          {/* Placeholder - mostrado enquanto carrega ou se não houver foto */}
+          {showPlaceholder && (
+            <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-muted">
+              <CatIcon className="w-16 h-16 text-muted-foreground animate-pulse" />
             </div>
+          )}
+
+          {/* Imagem real */}
+          {foto && !imageError && (
+            <img
+              src={foto}
+              alt={nome}
+              className={`w-full h-full object-cover transition-opacity duration-300 ${
+                imageLoaded ? "opacity-100" : "opacity-0"
+              }`}
+              onLoad={() => setImageLoaded(true)}
+              onError={() => setImageError(true)}
+            />
           )}
         </div>
         <div className="bg-card rounded-xl p-2">
@@ -70,17 +88,25 @@ export const CatCard = ({
       >
         <div className="flex items-center gap-3">
           {/* Photo thumbnail */}
-          <div className="w-16 h-16 flex-shrink-0 rounded-xl overflow-hidden bg-card">
-            {foto ? (
+          <div className="w-16 h-16 flex-shrink-0 rounded-xl overflow-hidden bg-card relative">
+            {/* Placeholder - mostrado enquanto carrega ou se não houver foto */}
+            {showPlaceholder && (
+              <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-muted">
+                <CatIcon className="w-8 h-8 text-muted-foreground animate-pulse" />
+              </div>
+            )}
+
+            {/* Imagem real */}
+            {foto && !imageError && (
               <img
                 src={foto}
                 alt={nome}
-                className="w-full h-full object-cover"
+                className={`w-full h-full object-cover transition-opacity duration-300 ${
+                  imageLoaded ? "opacity-100" : "opacity-0"
+                }`}
+                onLoad={() => setImageLoaded(true)}
+                onError={() => setImageError(true)}
               />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center bg-muted">
-                <CatIcon className="w-8 h-8 text-muted-foreground" />
-              </div>
             )}
           </div>
 
