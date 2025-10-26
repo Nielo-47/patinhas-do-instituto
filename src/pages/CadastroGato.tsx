@@ -23,11 +23,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Dialog } from "@/components/ui/dialog";
 import { supabase, uploadCatPhoto } from "@/lib/supabase";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2, Upload, X, Cat, Award, Star, Trash2 } from "lucide-react";
 import { CatSex, CatStatus } from "@/lib/models";
+import { compressImage, isImageFile, isFileSizeValid } from "@/lib/utils";
 
 const CadastroGato = () => {
   const { id } = useParams();
@@ -96,22 +98,59 @@ const CadastroGato = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Validações
     if (fotos.length >= 5) {
       toast.error("Limite de 5 fotos por gato atingido");
       return;
     }
 
-    setUploading(true);
-    const tempId = id || "temp-" + Date.now();
-    const { data, error } = await uploadCatPhoto(file, tempId);
-
-    if (error) {
-      toast.error("Erro ao fazer upload da foto");
-    } else if (data) {
-      setFotos([...fotos, data]);
-      toast.success("Foto adicionada!");
+    if (!isImageFile(file)) {
+      toast.error("Por favor, selecione apenas arquivos de imagem");
+      return;
     }
-    setUploading(false);
+
+    if (!isFileSizeValid(file, 10)) {
+      toast.error("Arquivo muito grande. Tamanho máximo: 10MB");
+      return;
+    }
+
+    setUploading(true);
+
+    try {
+      // Mostrar toast de progresso
+      toast.loading("Otimizando imagem...", { id: "compress" });
+
+      // Comprimir imagem
+      const compressedFile = await compressImage(file, {
+        maxWidth: 1200,
+        maxHeight: 1200,
+        quality: 0.85,
+        outputFormat: "webp",
+      });
+
+      toast.success("Imagem otimizada!", { id: "compress" });
+      toast.loading("Fazendo upload...", { id: "upload" });
+
+      // Upload da imagem comprimida
+      const tempId = id || "temp-" + Date.now();
+      const { data, error } = await uploadCatPhoto(compressedFile, tempId);
+
+      if (error) {
+        toast.error("Erro ao fazer upload da foto", { id: "upload" });
+        console.error(error);
+      } else if (data) {
+        setFotos([...fotos, data]);
+        toast.success("Foto adicionada com sucesso!", { id: "upload" });
+      }
+    } catch (error) {
+      console.error("Erro ao processar imagem:", error);
+      toast.error("Erro ao processar imagem");
+    } finally {
+      setUploading(false);
+    }
+
+    // Limpar input para permitir upload da mesma imagem novamente se necessário
+    e.target.value = "";
   };
 
   const removePhoto = (index: number) => {
@@ -124,13 +163,10 @@ const CadastroGato = () => {
     setDeleting(true);
 
     try {
-      const { error } = await supabase
-        .from("gatos")
-        .delete()
-        .eq("id", id);
+      const { error } = await supabase.from("gatos").delete().eq("id", id);
 
       if (error) throw error;
-      
+
       toast.success("Gato excluído com sucesso!");
       navigate("/censo");
     } catch (error) {
@@ -385,6 +421,10 @@ const CadastroGato = () => {
             {/* Photos */}
             <div>
               <Label>Fotos</Label>
+              <p className="text-sm text-muted-foreground mb-2">
+                As imagens serão automaticamente otimizadas para melhor
+                desempenho
+              </p>
               <div className="flex flex-wrap gap-4 mt-2">
                 {fotos.map((foto, index) => (
                   <div key={index} className="relative">
@@ -397,7 +437,7 @@ const CadastroGato = () => {
                       <button
                         type="button"
                         onClick={() => removePhoto(index)}
-                        className="absolute -top-2 -right-2 bg-accent text-accent-foreground rounded-full p-1"
+                        className="absolute -top-2 -right-2 bg-accent text-accent-foreground rounded-full p-1 hover:bg-accent/80 transition-colors"
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -406,7 +446,7 @@ const CadastroGato = () => {
                 ))}
 
                 {isProtetor && fotos.length < 5 && (
-                  <label className="w-32 h-32 border-2 border-dashed border-accent rounded-xl flex items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors">
+                  <label className="w-32 h-32 border-2 border-dashed border-accent rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors">
                     <input
                       type="file"
                       accept="image/*"
@@ -415,9 +455,19 @@ const CadastroGato = () => {
                       disabled={uploading}
                     />
                     {uploading ? (
-                      <Loader2 className="w-8 h-8 animate-spin text-accent" />
+                      <>
+                        <Loader2 className="w-8 h-8 animate-spin text-accent mb-2" />
+                        <span className="text-xs text-accent">
+                          Processando...
+                        </span>
+                      </>
                     ) : (
-                      <Upload className="w-8 h-8 text-accent" />
+                      <>
+                        <Upload className="w-8 h-8 text-accent mb-2" />
+                        <span className="text-xs text-accent text-center px-2">
+                          Adicionar foto
+                        </span>
+                      </>
                     )}
                   </label>
                 )}
@@ -451,7 +501,7 @@ const CadastroGato = () => {
                   )}
                 </Button>
               )}
-              
+
               <Button
                 type="button"
                 variant="secondary"
@@ -489,9 +539,10 @@ const CadastroGato = () => {
                     <AlertDialogHeader>
                       <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
                       <AlertDialogDescription>
-                        Tem certeza que deseja excluir o gato <strong>{nome}</strong>? 
-                        Esta ação não pode ser desfeita e todos os dados serão 
-                        permanentemente removidos do sistema.
+                        Tem certeza que deseja excluir o gato{" "}
+                        <strong>{nome}</strong>? Esta ação não pode ser desfeita
+                        e todos os dados serão permanentemente removidos do
+                        sistema.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

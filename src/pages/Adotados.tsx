@@ -141,7 +141,9 @@ const Adotados = () => {
                       style={{ color: "hsl(283 72% 16%)" }}
                     >
                       Adotado em{" "}
-                      {new Date(cat.data_adocao_falecimento).getFullYear()}
+                      {cat.data_adocao_falecimento
+                        ? new Date(cat.data_adocao_falecimento).getFullYear()
+                        : 2025}
                     </p>
                   </div>
                 </div>
