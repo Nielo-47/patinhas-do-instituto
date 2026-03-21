@@ -1,0 +1,39 @@
+name: Supabase Keep Alive
+
+on:
+  schedule:
+    # Runs every 3 days at 00:00 UTC to prevent the free Supabase project
+    # from being paused due to inactivity (paused after 7 days).
+    - cron: '0 0 */3 * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    name: Ping Supabase
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Send read-only query to Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          response=$(curl --silent --output /dev/null --write-out "%{http_code}" \
+            --request GET \
+            "${SUPABASE_URL}/rest/v1/gatos?limit=1" \
+            --header "apikey: ${SUPABASE_ANON_KEY}" \
+            --header "Authorization: Bearer ${SUPABASE_ANON_KEY}")
+
+          echo "HTTP status: ${response}"
+
+          if ! [[ "${response}" =~ ^[0-9]+$ ]]; then
+            echo "Supabase ping failed: unexpected response '${response}'"
+            exit 1
+          fi
+
+          if [[ "${response}" -lt 200 || "${response}" -ge 300 ]]; then
+            echo "Supabase ping failed with status ${response}"
+            exit 1
+          fi
+
+          echo "Supabase ping succeeded."
