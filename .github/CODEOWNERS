@@ -1,0 +1,6 @@
+# CODEOWNERS — define quem precisa aprovar Pull Requests antes do merge.
+# Qualquer alteração no repositório precisa ser aprovada pelo(s) dono(s) listado(s) abaixo.
+# Isso funciona em conjunto com as Regras de Proteção de Branch configuradas nas Settings do repositório.
+# Documentação: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+* @Nielo-47
