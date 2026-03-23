@@ -1,73 +1,96 @@
-# Welcome to your Lovable project
+<div align="center">
+  <img src="public/logo.png" alt="Patinhas do Instituto" width="200"/>
 
-## Project info
+  # 🐾 Patinhas do Instituto
 
-**URL**: https://lovable.dev/projects/c1e72c1a-c905-471a-a609-cfc7c417de6a
+  **Censo felino do IFCE Campus Fortaleza**
 
-## How can I edit this code?
+  [![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=white)](https://react.dev/)
+  [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+  [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+  [![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
+  [![Instagram](https://img.shields.io/badge/@patinhasdoinstituto-E4405F?logo=instagram&logoColor=white)](https://instagram.com/patinhasdoinstituto)
+</div>
 
-There are several ways of editing your application.
+---
 
-**Use Lovable**
+## 🐱 Sobre o Projeto
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/c1e72c1a-c905-471a-a609-cfc7c417de6a) and start prompting.
+O **Patinhas do Instituto** é uma plataforma criada por estudantes, professores e funcionários do **IFCE Campus Fortaleza** comprometidos com a causa animal.
 
-Changes made via Lovable will be committed automatically to this repo.
+Nosso objetivo é manter um **censo atualizado periodicamente** dos gatos que habitam o campus, facilitando o acompanhamento da saúde, vacinação e castração de cada bichinho — além de promover adoções responsáveis e conectar quem quer ajudar com quem precisa de ajuda. 🏫🐾
 
-**Use your preferred IDE**
+### ✨ Funcionalidades
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- 📋 **Censo de Gatos** — listagem completa dos felinos do campus com status atualizado
+- 🐾 **Perfil individual** — nome, fotos, situação de vacinação, castração e muito mais
+- 💛 **Adoção** — formulário de interesse e acompanhamento de pedidos
+- 🏅 **Protetores** — cadastro dos voluntários responsáveis pelo cuidado dos animais
+- 📊 **Gráficos** — visão estatística da população felina do campus
+- 🌹 **Memorial** — homenagem aos gatos que já partiram
+- 📸 **Carrossel** — galeria de fotos dos nossos gatinhos
+- 💸 **Como Ajudar** — informações sobre doações e apoio via Pix
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+---
 
-Follow these steps:
+## 🛠️ Tecnologias Utilizadas
+
+| Tecnologia | Descrição |
+|---|---|
+| [React 18](https://react.dev/) | Interface de usuário |
+| [TypeScript](https://www.typescriptlang.org/) | Tipagem estática |
+| [Vite](https://vitejs.dev/) | Bundler e servidor de desenvolvimento |
+| [Tailwind CSS](https://tailwindcss.com/) | Estilização utilitária |
+| [shadcn/ui](https://ui.shadcn.com/) | Componentes de UI acessíveis |
+| [Supabase](https://supabase.com/) | Backend como serviço (banco de dados e autenticação) |
+| [React Router](https://reactrouter.com/) | Navegação entre páginas |
+| [TanStack Query](https://tanstack.com/query) | Gerenciamento de estado assíncrono |
+
+---
+
+## 🚀 Como Executar Localmente
+
+Pré-requisito: [Node.js](https://nodejs.org/) instalado (recomendamos usar o [nvm](https://github.com/nvm-sh/nvm#installing-and-updating)).
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# 1. Clone o repositório
+git clone https://github.com/Nielo-47/patinhas-do-instituto.git
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# 2. Acesse a pasta do projeto
+cd patinhas-do-instituto
 
-# Step 3: Install the necessary dependencies.
-npm i
+# 3. Instale as dependências
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# 4. Inicie o servidor de desenvolvimento
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+A URL local será exibida no terminal após o comando acima (normalmente [http://localhost:5173](http://localhost:5173)). 🎉
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+---
 
-**Use GitHub Codespaces**
+## 🤝 Como Contribuir
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+1. Faça um **fork** do repositório
+2. Crie uma branch para sua feature: `git checkout -b minha-feature`
+3. Faça o commit das suas alterações: `git commit -m 'feat: minha nova feature'`
+4. Envie para o seu fork: `git push origin minha-feature`
+5. Abra um **Pull Request** 🚀
 
-## What technologies are used for this project?
+---
 
-This project is built with:
+## 💛 Apoie a Causa
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Se você quer ajudar os gatos do campus mas não pode adotar, há outras formas de contribuir:
 
-## How can I deploy this project?
+- 🍽️ **Doação de ração**
+- 💊 **Doação de medicamentos**
+- 💸 **Doação via Pix** — consulte a chave na seção "Como Ajudar" do site
+- 📣 **Divulgação** — siga e compartilhe nosso [Instagram](https://instagram.com/patinhasdoinstituto)
 
-Simply open [Lovable](https://lovable.dev/projects/c1e72c1a-c905-471a-a609-cfc7c417de6a) and click on Share -> Publish.
+---
 
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+<div align="center">
+  Feito com 💛 e muito amor pelos protetores do <strong>IFCE Campus Fortaleza</strong> 🐾
+</div>
