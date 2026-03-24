@@ -59,14 +59,29 @@ git clone https://github.com/Nielo-47/patinhas-do-instituto.git
 # 2. Acesse a pasta do projeto
 cd patinhas-do-instituto
 
-# 3. Instale as dependências
+# 3. Configure as variáveis de ambiente
+cp .env.example .env
+# Edite o arquivo .env com as suas credenciais do Supabase
+
+# 4. Instale as dependências
 npm install
 
-# 4. Inicie o servidor de desenvolvimento
+# 5. Inicie o servidor de desenvolvimento
 npm run dev
 ```
 
 A URL local será exibida no terminal após o comando acima (normalmente [http://localhost:5173](http://localhost:5173)). 🎉
+
+### 🔑 Variáveis de Ambiente
+
+Crie um arquivo `.env` na raiz do projeto com base no `.env.example`:
+
+```env
+VITE_SUPABASE_URL=https://<project-ref>.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=<your-supabase-anon-key>
+```
+
+> ⚠️ **Nunca commite o arquivo `.env`** — ele já está no `.gitignore`. Use sempre o `.env.example` como referência.
 
 ---
 
@@ -77,6 +92,8 @@ A URL local será exibida no terminal após o comando acima (normalmente [http:/
 3. Faça o commit das suas alterações: `git commit -m 'feat: minha nova feature'`
 4. Envie para o seu fork: `git push origin minha-feature`
 5. Abra um **Pull Request** 🚀
+
+> 🔒 A branch `main` é protegida — todos os Pull Requests precisam de ao menos **1 aprovação** do dono do repositório (via [CODEOWNERS](.github/CODEOWNERS)) antes de serem mesclados. Push direto para `main` não é permitido.
 
 ---
 
