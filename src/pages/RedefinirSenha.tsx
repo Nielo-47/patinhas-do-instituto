@@ -21,10 +21,12 @@ export default function RedefinirSenha() {
   const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
-    const t = searchParams.get("access_token");
-    const type = searchParams.get("type");
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const t = hashParams.get("access_token");
+    const type = hashParams.get("type");
+    const code = searchParams.get("code");
 
-    if (!t || type !== "recovery") {
+    if ((!t && !code) || type !== "recovery") {
       toast({
         title: "Link inválido",
         description: "O link de redefinição de senha é inválido ou expirou.",
@@ -32,7 +34,7 @@ export default function RedefinirSenha() {
       });
       navigate("/auth");
     } else {
-      setToken(t);
+      setToken(t || code);
     }
   }, [searchParams, navigate, toast]);
 
