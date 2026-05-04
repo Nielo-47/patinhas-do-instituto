@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { signIn, resetPassword } from "@/lib/supabase";
@@ -48,13 +49,13 @@ const Auth = () => {
           return;
         }
         toast.success(
-          "Email de redefinição enviado! Verifique sua caixa de entrada."
+          "Email de redefinição enviado! Verifique sua caixa de entrada.",
         );
       } else {
         const validated = loginSchema.parse({ email, password });
         const { error, data } = await signIn(
           validated.email,
-          validated.password
+          validated.password,
         );
 
         if (error) {
@@ -65,7 +66,7 @@ const Auth = () => {
             error.message.toLowerCase().includes("confirm")
           ) {
             toast.warning(
-              "Seu e-mail ainda não foi confirmado. Verifique sua caixa de entrada e clique no link de confirmação antes de fazer login."
+              "Seu e-mail ainda não foi confirmado. Verifique sua caixa de entrada e clique no link de confirmação antes de fazer login.",
             );
             return;
           }
@@ -118,9 +119,8 @@ const Auth = () => {
           {!isReset && (
             <div>
               <Label htmlFor="password">Senha</Label>
-              <Input
+              <PasswordInput
                 id="password"
-                type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -133,8 +133,8 @@ const Auth = () => {
             {loading
               ? "Carregando..."
               : isReset
-              ? "Enviar email de redefinição"
-              : "Entrar"}
+                ? "Enviar email de redefinição"
+                : "Entrar"}
           </Button>
         </form>
 

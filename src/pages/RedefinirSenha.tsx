@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -17,25 +17,71 @@ export default function RedefinirSenha() {
   const [senha, setSenha] = useState("");
   const [confirmSenha, setConfirmSenha] = useState("");
   const [loading, setLoading] = useState(false);
-
-  const [token, setToken] = useState<string | null>(null);
+  const [checkingLink, setCheckingLink] = useState(true);
 
   useEffect(() => {
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const t = hashParams.get("access_token");
-    const type = hashParams.get("type");
-    const code = searchParams.get("code");
+    const prepareRecoverySession = async () => {
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const accessToken = hashParams.get("access_token");
+      const refreshToken = hashParams.get("refresh_token");
+      const type = hashParams.get("type");
+      const code = searchParams.get("code");
 
-    if ((!t && !code) || type !== "recovery") {
+      if (code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
+
+        if (error) {
+          toast({
+            title: "Link inválido",
+            description:
+              "Não foi possível validar o link de redefinição de senha.",
+            variant: "destructive",
+          });
+          navigate("/auth");
+          return;
+        }
+
+        setCheckingLink(false);
+        return;
+      }
+
+      if (accessToken && refreshToken && type === "recovery") {
+        const { error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        });
+
+        if (error) {
+          toast({
+            title: "Link inválido",
+            description:
+              "Não foi possível validar o link de redefinição de senha.",
+            variant: "destructive",
+          });
+          navigate("/auth");
+          return;
+        }
+
+        setCheckingLink(false);
+        return;
+      }
+
+      const { data } = await supabase.auth.getSession();
+
+      if (data.session) {
+        setCheckingLink(false);
+        return;
+      }
+
       toast({
         title: "Link inválido",
         description: "O link de redefinição de senha é inválido ou expirou.",
         variant: "destructive",
       });
       navigate("/auth");
-    } else {
-      setToken(t || code);
-    }
+    };
+
+    void prepareRecoverySession();
   }, [searchParams, navigate, toast]);
 
   const handleRedefinirSenha = async (e: React.FormEvent) => {
@@ -48,7 +94,7 @@ export default function RedefinirSenha() {
       toast({ title: "As senhas não coincidem", variant: "destructive" });
       return;
     }
-    if (!token) return;
+    if (checkingLink) return;
 
     setLoading(true);
     try {
@@ -58,10 +104,15 @@ export default function RedefinirSenha() {
 
       toast({ title: "Senha redefinida com sucesso!" });
       navigate("/auth");
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Não foi possível redefinir a senha";
+
       toast({
         title: "Erro",
-        description: err.message || "Não foi possível redefinir a senha",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -70,7 +121,7 @@ export default function RedefinirSenha() {
   };
 
   return (
-    <div className="min-h-screen gradient-purple-dark flex flex-col">
+    <div className="min-h-screen flex flex-col p-4 gradient-purple-dark">
       <Navbar />
 
       <main className="flex-1 flex items-center justify-center px-4">
@@ -85,34 +136,39 @@ export default function RedefinirSenha() {
           <form onSubmit={handleRedefinirSenha} className="space-y-6">
             <div>
               <Label htmlFor="senha">Nova Senha</Label>
-              <Input
+              <PasswordInput
                 id="senha"
-                type="password"
                 value={senha}
                 onChange={(e) => setSenha(e.target.value)}
                 required
                 className="rounded-xl"
+                disabled={checkingLink}
               />
             </div>
 
             <div>
               <Label htmlFor="confirmSenha">Confirmar Senha</Label>
-              <Input
+              <PasswordInput
                 id="confirmSenha"
-                type="password"
                 value={confirmSenha}
                 onChange={(e) => setConfirmSenha(e.target.value)}
                 required
                 className="rounded-xl"
+                disabled={checkingLink}
               />
             </div>
 
             <Button
               type="submit"
               className="w-full flex justify-center gap-2"
-              disabled={loading}
+              disabled={loading || checkingLink}
             >
-              {loading ? (
+              {checkingLink ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Validando link...
+                </>
+              ) : loading ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
                   Processando...
